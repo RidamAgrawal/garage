@@ -6,7 +6,6 @@ import {
   WORLD_BLOCK_ANIMS2,
   WINDMILL_ANIMS,
 } from "./constants";
-import { globalState } from "./state/stateManager";
 import { savePreviousScene } from "./utils";
 
 k.loadFont("gameboy", "./assets/gb.ttf");

@@ -70,7 +70,7 @@ export default class MapScene extends BaseScene {
           }
           const handler = spawnHandlers[obj.name];
           if (handler) {
-            const created = handler({
+            handler({
               k: this.k,
               map: this.map,
               obj,
@@ -283,7 +283,7 @@ export default class MapScene extends BaseScene {
     ) as GameObj[];
     if (windmillSpawnPointObjects.length) {
       windmillSpawnPointObjects.forEach((windmillSpawnPointObject) => {
-        const windmillEntity = new WindmillEntity(
+        new WindmillEntity(
           this.k,
           this.map,
           this.k.vec2(windmillSpawnPointObject.x, windmillSpawnPointObject.y),
@@ -298,7 +298,7 @@ export default class MapScene extends BaseScene {
     ) as GameObj[];
     if (hurdlesSpawnPointObjects.length) {
       hurdlesSpawnPointObjects.forEach((hurdleSpawnPointObject) => {
-        const hurdleEntity = new HurdleEntity(
+        new HurdleEntity(
           this.k,
           this.map,
           this.k.vec2(
@@ -324,7 +324,8 @@ export default class MapScene extends BaseScene {
   }
 
   public async applyPlayerDamage(gameObj: GameObj, damage: number) {
-    const playerGameObj = this.player?.player;
+    if (!gameObj || !this.player) return;
+    const playerGameObj = this.player.player;
     const k = this.k;
     if (
       !playerGameObj ||

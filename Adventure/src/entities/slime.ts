@@ -5,7 +5,7 @@ const directionalStates = ["left", "right", "up", "down"];
 
 export class SlimeEntity{
     private k!:KAPLAYCtx;
-    private map: GameObj;
+    public map: GameObj;
     public slimeGameObj: GameObj | null = null;
     private slimeMoveRef: KEventController | null = null;
     constructor(k: KAPLAYCtx, map: GameObj, pos: Vec2) {

@@ -1,4 +1,4 @@
-import type { GameObj, KAPLAYCtx, PosComp, Vec2 } from "kaplay";
+import type { GameObj, KAPLAYCtx } from "kaplay";
 import { globalState } from "../state/stateManager";
 
 export default class HealthBar {

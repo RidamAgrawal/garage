@@ -21,6 +21,7 @@ export async function addChars(
       }, 30);
     });
   }
+  k
 }
 
 export function dialogue(

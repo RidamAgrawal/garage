@@ -1,4 +1,4 @@
-import type { Collision, Game, GameObj, KAPLAYCtx, Key, Vec2 } from "kaplay";
+import type { GameObj, KAPLAYCtx, Key, Vec2 } from "kaplay";
 import { health, isKeyAlreadyPressed, playAnimIfNotPlaying } from "../utils";
 import { globalState } from "../state/stateManager";
 import type { Facing } from "./oldman";
@@ -152,6 +152,7 @@ export class PlayerEntity {
         "shieldHitBox",
       ]);
 
+      shieldHitBoxGameObj;
       // k.wait(0.2, () => {
       //   k.destroy(shieldHitBoxGameObj);
       //   playAnimIfNotPlaying(player, "player-idle-" + player.direction);

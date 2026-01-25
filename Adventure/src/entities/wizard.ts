@@ -4,7 +4,7 @@ import { onAttacked, playAnimIfNotPlaying } from "../utils";
 
 export class WizardEntity {
   private k: KAPLAYCtx | null = null;
-  private map: GameObj;
+  public map: GameObj | null = null;
   private wizard: GameObj;
   private wizardIdleAnim: Record<Facing, string> = {
     left: "wizard-idle-left",
