@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: './', // Use relative base path for GitHub Pages deployment in subfolder
+  base: "./", // Use relative base path for GitHub Pages deployment in subfolder
   build: {
-    outDir: 'dist',
-  }
+    outDir: "dist/Adventure",
+    emptyOutDir: true,
+  },
 });
