@@ -3,8 +3,8 @@ import type { KAPLAYCtx } from "kaplay";
 export class GlobalState {
   private _freezePlayer: boolean = false;
   private _talkedToOldman: boolean = false;
-  private _isSwordUnlocked: boolean = false;
-  private _isShieldUnlocked: boolean = false;
+  private _isSwordUnlocked: boolean = true;
+  private _isShieldUnlocked: boolean = true;
   private _previousSceneName: string = "";
   set freezePlayer(val: boolean) {
     this._freezePlayer = val;

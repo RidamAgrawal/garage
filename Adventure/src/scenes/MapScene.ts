@@ -7,7 +7,10 @@ import {
   colorizeBackground,
   showSceneIntro,
   blinkEffect,
+  detectDeviceType,
 } from "../utils";
+import DPad from "../uiComponents/dpad";
+import ActionPad from "../uiComponents/actionpad";
 import {
   createChestGameObj,
   createDoorGameObj,
@@ -43,6 +46,9 @@ export default class MapScene extends BaseScene {
   wizardEntity: WizardEntity | null = null;
   spawnPointLayer: any;
 
+  mapWidth!: number;
+  mapHeight!: number;
+
   constructor(
     k: KAPLAYCtx,
     mapPath: string,
@@ -56,6 +62,9 @@ export default class MapScene extends BaseScene {
   public async init(spawnHandlers: Record<string, SpawnHandler>) {
     const mapData = await fetchMapData(this.mapPath);
     this.map = this.k.add([this.k.pos(0, 0)]);
+
+    this.mapWidth = mapData.width * mapData.tilewidth;
+    this.mapHeight = mapData.height * mapData.tileheight;
 
     for (const layer of mapData.layers) {
       if (layer.name === "boundaries") {
@@ -87,7 +96,8 @@ export default class MapScene extends BaseScene {
     if (this.canvasBackgroundConfig)
       colorizeBackground(this.k, this.canvasBackgroundConfig);
 
-    this.k.setCamScale(2);
+    const isMobile = detectDeviceType() === "mobile";
+    this.k.setCamScale(isMobile ? 3 : 2);
 
     if (mapData.sceneIntro) {
       showSceneIntro(this.k, mapData.sceneIntro, "");
@@ -217,7 +227,21 @@ export default class MapScene extends BaseScene {
       );
       if (this.player instanceof PlayerEntity) {
         const p = this.player.player;
-        this.player.enableMovement();
+
+        const deviceType = detectDeviceType();
+        if (deviceType === "mobile") {
+          const dpad = new DPad(this.k);
+          dpad.init();
+
+          const actionPad = new ActionPad(this.k);
+          actionPad.init();
+
+          this.player.enableTouchMovement(dpad);
+          this.player.enableTouchActions(actionPad);
+        } else {
+          this.player.enableMovement();
+        }
+
         this.k.setCamPos(p.worldPos());
 
         this.k.onUpdate(() => {
@@ -235,14 +259,49 @@ export default class MapScene extends BaseScene {
   }
 
   public adjustCameraToPlayerPosition() {
+    const k = this.k;
+    const map = this.map;
     const p = this.player?.player as GameObj;
-    if (p && p.pos.dist(this.k.getCamPos())) {
-      this.k.tween(
-        this.k.getCamPos(),
-        p.worldPos(),
+    if (!k || !p) return;
+
+    const camScale = k.getCamScale().x;
+
+    const viewPortWidth = k.width() / camScale;
+    const viewPortHeight = k.height() / camScale;
+
+    const halfViewW = viewPortWidth / 2;
+    const halfViewH = viewPortHeight / 2;
+
+    let targetX = p.worldPos().x;
+    let targetY = p.worldPos().y;
+
+    if (this.mapWidth <= viewPortWidth) {
+      targetX = this.mapWidth / 2;
+    } else {
+      targetX = Math.max(
+        halfViewW,
+        Math.min(p.worldPos().x, this.mapWidth - halfViewW),
+      );
+    }
+
+    if (this.mapHeight <= viewPortHeight) {
+      targetY = this.mapHeight / 2;
+    } else {
+      targetY = Math.max(
+        halfViewH,
+        Math.min(p.worldPos().y, this.mapHeight - halfViewH),
+      );
+    }
+
+    const targetPos = k.vec2(targetX, targetY);
+
+    if (p.pos.dist(k.getCamPos())) {
+      k.tween(
+        k.getCamPos(),
+        targetPos,
         0.15,
-        (newPos) => this.k.setCamPos(newPos),
-        this.k.easings.linear,
+        (newPos) => k.setCamPos(newPos),
+        k.easings.linear,
       );
     }
   }

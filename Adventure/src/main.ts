@@ -16,7 +16,14 @@ k.loadSprite("assets", "./assets/worldBlocks.png", {
 });
 k.loadSpriteAtlas("assets/worldBlocks.png", WORLD_BLOCK_ANIMS2);
 k.loadSpriteAtlas("assets/worldBlocks.png", WINDMILL_ANIMS);
-k.loadSound("respawn", "./assets/sounds/respawn.wav");
+k.loadSound("respawn", "./assets/sounds/Sound Effect (respawn).wav");
+k.loadSound("sword", "./assets/sounds/Sound Effect (sword).wav");
+k.loadSound("hurt", "./assets/sounds/Sound Effect (hurt).wav");
+k.loadSound("destroyed", "./assets/sounds/Sound Effect (destroyed).wav");
+k.loadSound("enemyMove", "./assets/sounds/Sound Effect (enemyMove).wav");
+k.loadSound("enemyMove2", "./assets/sounds/Sound Effect (enemyMove2).wav");
+k.loadSound("defeated", "./assets/sounds/Sound Effect (defeated).wav");
+k.loadSound("spell", "./assets/sounds/Sound Effect (spells).wav");
 
 k.scene("village", async () => {
   const scene = new MapScene(k, "./assets/maps/village.json", {
@@ -161,4 +168,4 @@ k.scene("fortRoom3", async () => {
   savePreviousScene(k);
 });
 
-k.go("village");
+k.go("fortRoom3");

@@ -1,4 +1,5 @@
 import type { GameObj, KAPLAYCtx, Vec2 } from "kaplay";
+import { detectDeviceType } from "../utils";
 
 export async function addLine(
   k: KAPLAYCtx,
@@ -9,7 +10,7 @@ export async function addLine(
 }
 
 export async function addChars(
-  k: KAPLAYCtx,
+  _k: KAPLAYCtx,
   textContainer: GameObj,
   line: string,
 ) {
@@ -21,7 +22,6 @@ export async function addChars(
       }, 30);
     });
   }
-  k
 }
 
 export function dialogue(
@@ -30,7 +30,6 @@ export function dialogue(
   content: string[],
 ): Promise<any> {
   return new Promise(async (resolve: any) => {
-    // k.debug.log(content);
     const dialogueBox = k.add([k.rect(800, 180), k.pos(pos), k.fixed()]);
     const textContainer = dialogueBox.add([
       k.text("", {
@@ -44,23 +43,41 @@ export function dialogue(
       k.fixed(),
       k.outline(10, k.Color.fromHex("1288bc"), 1, "round"),
     ]);
-    // await addLine(k, textContainer, content);
+
     let index = 0;
     await addChars(k, textContainer, content[index]);
     let lineFinished = true;
-    const dialogueKey = k.onKeyPress(["space", "enter"], async () => {
+
+    const advanceDialogue = async () => {
       if (!lineFinished) return;
 
       index++;
       if (index >= content.length) {
-        dialogueKey.cancel();
-        k.destroy(textContainer);
-        k.destroy(dialogueBox);
+        cleanup();
         resolve();
         return;
       }
       textContainer.text = "";
       await addChars(k, textContainer, content[index]);
-    });
+    };
+
+    // Keyboard input (for desktop)
+    const dialogueKey = k.onKeyPress(["space", "enter"], advanceDialogue);
+
+    // Touch input (for mobile) - tap anywhere on screen to advance
+    let dialogueTouch: ReturnType<typeof k.onTouchStart> | null = null;
+    const isMobile = detectDeviceType() === "mobile";
+    if (isMobile) {
+      dialogueTouch = k.onTouchStart(() => {
+        advanceDialogue();
+      });
+    }
+
+    const cleanup = () => {
+      dialogueKey.cancel();
+      dialogueTouch?.cancel();
+      k.destroy(textContainer);
+      k.destroy(dialogueBox);
+    };
   });
 }

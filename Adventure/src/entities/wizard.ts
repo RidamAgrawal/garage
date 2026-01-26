@@ -1,4 +1,4 @@
-import type { KAPLAYCtx, GameObj, Vec2, KEventController } from "kaplay";
+import type { KAPLAYCtx, GameObj, Vec2, KEventController, AudioPlay } from "kaplay";
 import type { Facing } from "./oldman";
 import { onAttacked, playAnimIfNotPlaying } from "../utils";
 
@@ -55,6 +55,7 @@ export class WizardEntity {
         "down",
         "attack",
         "evade",
+        "backtrack",
       ]),
       k.scale(1.2),
       {
@@ -63,6 +64,7 @@ export class WizardEntity {
         isWalking: false,
         isPlayerInSight: false,
         speed: 30,
+        currentSound: null,
       },
       "wizard",
     ]);
@@ -105,6 +107,11 @@ export class WizardEntity {
     });
     const updateRef = k.onUpdate(() => {
       if (player.pos.dist(wizard.pos) < 50) {
+        this.removeWizardsCurrentSound();
+        wizard.currentSound = k.play("enemyMove2", {
+          loop: true,
+          volume: 0.8,
+        });
         wizard.enterState("up");
         updateRef.cancel();
         wizard.isPlayerInSight = true;
@@ -131,6 +138,11 @@ export class WizardEntity {
       wizard.isWalking = false;
       wizard.isAttacking = true;
       const attackSpeed = 2000;
+      this.removeWizardsCurrentSound();
+      wizard.currentSound = k.play("spell", {
+        volume: 0.8,
+        loop: true,
+      });
       this.attackPlayer(player, attackSpeed);
       await k.wait(6);
       this.stopWizardAttack();
@@ -168,6 +180,16 @@ export class WizardEntity {
       wizard.enterState("attack");
     });
 
+    const backtrackRef = wizard.onStateEnter("backtrack", async () => {
+      wizard.isWalking = true;
+      wizard.direction = "up";
+      // k.play("enemyMove2", {
+      //   loop: true,
+      //   volume: 0.8
+      // });
+      this.performMotionAndEnterAttackState();
+    });
+
     k.onSceneLeave(() => {
       this.stopWizardAttack();
       idleRef.cancel();
@@ -178,6 +200,7 @@ export class WizardEntity {
       rightRef.cancel();
       upRef.cancel();
       evadeRef.cancel();
+      backtrackRef.cancel();
     });
   }
 
@@ -239,6 +262,9 @@ export class WizardEntity {
     this.skullBoneAttackColliders.forEach((collider) => {
       skullAttack.onCollide(collider, () => {
         this.destroyAttack(skullAttack);
+        if (collider !== "player") {
+          k.play("destroyed");
+        }
       });
     });
   }
@@ -280,6 +306,8 @@ export class WizardEntity {
     const k = this.k;
     if (!k) return;
 
+    this.wizard.currentSound?.stop();
+    this.wizard.currentSound = null;
     const wizardDirection = this.wizard.direction as Facing;
     const anim = this.wizardWalkAnim[wizardDirection];
     playAnimIfNotPlaying(this.wizard, anim);
@@ -288,19 +316,29 @@ export class WizardEntity {
     playAnimIfNotPlaying(this.wizard, anim2);
     await k.wait(0.2);
     this.wizard.play(this.wizardIdleAnim[wizardDirection]);
+    this.wizard.currentSound?.play();
   }
 
   public stopWizardAttack() {
     this.wizard.isAttacking = false;
+    this.wizard.currentSound?.stop();
+    this.wizard.currentSound = null;
     clearInterval(this.attackInterval);
   }
 
-  public onWizardDestroyed() {
+  public async onWizardDestroyed() {
     const k = this.k;
     if (!k) return;
     k.onDestroy("wizard", () => {
       clearInterval(this.attackInterval);
     });
+    this.wizard.currentSound?.stop();
+    this.wizard.currentSound = null;
+    this.wizard.currentSound = k.play("defeated", {
+      volume: 0.8,
+    });
+    await k.wait(1);
+    this.wizard.destroy();
   }
 
   public async performMotionAndEnterAttackState() {
@@ -310,5 +348,10 @@ export class WizardEntity {
     await k.wait(3);
     this.wizard.isWalking = false;
     this.wizard.enterState("attack");
+  }
+
+  public removeWizardsCurrentSound() {
+    this.wizard.currentSound?.stop();
+    this.wizard.currentSound = null;
   }
 }

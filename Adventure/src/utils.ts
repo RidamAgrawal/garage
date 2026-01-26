@@ -157,6 +157,7 @@ export function buildTileAnimations(mapData: any) {
 }
 
 export async function blinkEffect(k: KAPLAYCtx, entity: GameObj) {
+  k.play("hurt");
   await k.tween(
     entity.opacity,
     0,
@@ -286,4 +287,18 @@ export function heartRoulette(
 
 export function savePreviousScene(k: KAPLAYCtx) {
   globalState.previousSceneName = k.getSceneName() || "";
+}
+
+export function detectDeviceType(): "mobile" | "desktop" {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  const isTouchCapable = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+
+  const screenWidth = window.innerWidth;
+
+  if ( /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent) || (isTouchCapable && screenWidth <= 768)) {
+    return "mobile";
+  }
+
+  return "desktop";
 }
