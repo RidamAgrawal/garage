@@ -260,7 +260,6 @@ export default class MapScene extends BaseScene {
 
   public adjustCameraToPlayerPosition() {
     const k = this.k;
-    const map = this.map;
     const p = this.player?.player as GameObj;
     if (!k || !p) return;
 

@@ -1,4 +1,4 @@
-import type { KAPLAYCtx, GameObj, Vec2, KEventController, AudioPlay } from "kaplay";
+import type { KAPLAYCtx, GameObj, Vec2, KEventController } from "kaplay";
 import type { Facing } from "./oldman";
 import { onAttacked, playAnimIfNotPlaying } from "../utils";
 
