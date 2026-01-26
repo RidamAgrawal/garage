@@ -10,9 +10,9 @@ export default class DPad {
   buttons: Record<Facing, GameObj> = {} as Record<Facing, GameObj>;
 
   // Button visual settings
-  private readonly BUTTON_SIZE = 40;
-  private readonly BUTTON_GAP = 5;
-  private readonly PADDING = 20;
+  private readonly BUTTON_SIZE = 100;
+  private readonly BUTTON_GAP = 10;
+  private readonly PADDING = 40;
   private readonly OPACITY_NORMAL = 0.5;
   private readonly OPACITY_PRESSED = 0.9;
 

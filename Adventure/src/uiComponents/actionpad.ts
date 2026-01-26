@@ -18,9 +18,9 @@ export default class ActionPad {
   private shieldPressed = false;
 
   // Button visual settings
-  private readonly BUTTON_SIZE = 50;
-  private readonly BUTTON_GAP = 15;
-  private readonly PADDING = 20;
+  private readonly BUTTON_SIZE = 100;
+  private readonly BUTTON_GAP = 30;
+  private readonly PADDING = 40;
   private readonly OPACITY_NORMAL = 0.5;
   private readonly OPACITY_PRESSED = 0.9;
 

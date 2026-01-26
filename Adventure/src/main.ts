@@ -168,4 +168,4 @@ k.scene("fortRoom3", async () => {
   savePreviousScene(k);
 });
 
-k.go("fortRoom3");
+k.go("village");
