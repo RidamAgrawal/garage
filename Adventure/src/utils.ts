@@ -292,13 +292,31 @@ export function savePreviousScene(k: KAPLAYCtx) {
 export function detectDeviceType(): "mobile" | "desktop" {
   const userAgent = navigator.userAgent.toLowerCase();
 
-  const isTouchCapable = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+  const isTouchCapable =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
   const screenWidth = window.innerWidth;
 
-  if ( /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent) || (isTouchCapable && screenWidth <= 768)) {
+  if (
+    /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent,
+    ) ||
+    (isTouchCapable && screenWidth <= 768)
+  ) {
     return "mobile";
   }
 
   return "desktop";
+}
+
+export function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.error(
+        `Error attempting to enable fullscreen: ${err.message} (${err.name})`,
+      );
+    });
+  } else {
+    document.exitFullscreen();
+  }
 }

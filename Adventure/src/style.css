@@ -24,13 +24,44 @@
 }
 
 @keyframes rotate {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(90deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(90deg);
+  }
 }
 
 /* Show overlay only on mobile portrait */
 @media screen and (max-width: 768px) and (orientation: portrait) {
   #rotate-device-overlay {
     display: flex;
+  }
+}
+
+#fullscreen-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 20px;
+  cursor: pointer;
+  display: none; /* Hidden by default, shown via JS or media query */
+}
+
+#fullscreen-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Show fullscreen button on mobile */
+@media screen and (max-width: 768px) {
+  #fullscreen-btn {
+    display: block;
   }
 }

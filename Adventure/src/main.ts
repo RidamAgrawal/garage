@@ -6,7 +6,7 @@ import {
   WORLD_BLOCK_ANIMS2,
   WINDMILL_ANIMS,
 } from "./constants";
-import { savePreviousScene } from "./utils";
+import { savePreviousScene, toggleFullscreen } from "./utils";
 
 k.loadFont("gameboy", "./assets/gb.ttf");
 k.loadSprite("assets", "./assets/worldBlocks.png", {
@@ -24,6 +24,11 @@ k.loadSound("enemyMove", "./assets/sounds/Sound Effect (enemyMove).wav");
 k.loadSound("enemyMove2", "./assets/sounds/Sound Effect (enemyMove2).wav");
 k.loadSound("defeated", "./assets/sounds/Sound Effect (defeated).wav");
 k.loadSound("spell", "./assets/sounds/Sound Effect (spells).wav");
+k.loadSound("obtainShield", "./assets/sounds/Sound Effect (obtainShield).wav");
+
+document.getElementById("fullscreen-btn")?.addEventListener("click", () => {
+  toggleFullscreen();
+});
 
 k.scene("village", async () => {
   const scene = new MapScene(k, "./assets/maps/village.json", {

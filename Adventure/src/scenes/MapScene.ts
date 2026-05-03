@@ -152,11 +152,58 @@ export default class MapScene extends BaseScene {
     } else if (gameObj.tags.includes("world4")) {
       k.go("world4");
     } else if (gameObj.tags.includes("bonfire")) {
-      const chestObj = createChestGameObj(k, this.map, gameObj.pos.clone());
-      chestObj.play("got-shield");
+      if (globalState.isShieldUnlocked) return;
+      globalState.isShieldUnlocked = true;
+
+      const chestPos = gameObj.pos.clone();
+      const chestObj = createChestGameObj(k, this.map, chestPos);
+
+      // Play chest-opening animation (closed → open), stays on open frame
+      chestObj.play("chest-open");
+
       chestObj.on("animEnd", () => {
-        chestObj.destroy();
-        globalState.isShieldUnlocked = true;
+        k.play("obtainShield");
+        // Spawn the shield sprite above the opened chest
+        const shieldStartPos = k.vec2(chestPos.x, chestPos.y);
+        const shieldEndPos = k.vec2(chestPos.x, chestPos.y - 20);
+
+        const shieldObj = this.map.add([
+          k.sprite("assets", { frame: 179 }),
+          k.pos(shieldStartPos),
+          k.opacity(1),
+          k.z(3),
+          "floatingShield",
+        ]);
+
+        // Float the shield upward
+        k.tween(
+          shieldStartPos.y,
+          shieldEndPos.y,
+          1.2,
+          (val) => {
+            shieldObj.pos.y = val;
+          },
+          k.easings.easeOutCubic,
+        );
+
+        // Fade the shield out (start fading halfway through the float)
+        k.wait(0.6, () => {
+          k.tween(
+            1,
+            0,
+            0.6,
+            (val) => {
+              shieldObj.opacity = val;
+            },
+            k.easings.easeInCubic,
+          );
+        });
+
+        // After the full animation, clean up chest and shield
+        k.wait(1.2, () => {
+          shieldObj.destroy();
+          chestObj.destroy();
+        });
       });
     } else if (gameObj.tags.includes("oldMan")) {
       playerGameObj.isInteracting = true;

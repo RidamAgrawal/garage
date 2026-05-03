@@ -27,6 +27,7 @@ export const WORLD_BLOCK_ANIMS: Record<number | string, TileAnim | number> = {
   "slime-idle-left": 899,
   "slime-walk-left": { from: 899, to: 900, loop: true, speed: 8 },
   "got-key": { frames: [137, 138, 99], loop: false, speed: 16 },
+  "chest-open": { frames: [137, 138], loop: false, speed: 2 },
   "got-shield": { frames: [137, 138, 179], loop: false, speed: 1 },
   "got-sword": { frames: [137, 138, 180], loop: false, speed: 2 },
   "got-redPotion": { frames: [137, 138, 140], loop: false, speed: 2 },
