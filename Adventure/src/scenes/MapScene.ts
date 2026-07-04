@@ -22,6 +22,7 @@ import { globalState } from "../state/stateManager";
 import { WindmillEntity } from "../entities/windmill";
 import { HurdleEntity } from "../entities/hurdle";
 import { WizardEntity } from "../entities/wizard";
+import { GhostEntity } from "../entities/ghost";
 
 export type backgroundConfig = {
   red: number;
@@ -44,6 +45,9 @@ export default class MapScene extends BaseScene {
   player: PlayerEntity | null = null;
   oldManEntity: OldManEntity | null = null;
   wizardEntity: WizardEntity | null = null;
+  hurdleEntities: HurdleEntity[] = [];
+  ghostSpawnPositions: import("kaplay").Vec2[] = [];
+  ghostSpawnIndex = 0;
   spawnPointLayer: any;
 
   mapWidth!: number;
@@ -217,6 +221,11 @@ export default class MapScene extends BaseScene {
       });
     } else if (gameObj.tags.includes("slime")) {
       await this.applyPlayerDamage(gameObj, gameObj.attackPower);
+    } else if (gameObj.tags.includes("ghost")) {
+      // Ghost is a kamikaze: it hurts the player and is destroyed on contact,
+      // which summons the next ghost.
+      await this.applyPlayerDamage(gameObj, gameObj.attackPower);
+      this.defeatGhost(gameObj);
     } else if (
       gameObj.tags.includes("windmill") ||
       gameObj.tags.includes("windmill1") ||
@@ -226,6 +235,8 @@ export default class MapScene extends BaseScene {
     } else if (gameObj.tags.includes("roof")) {
       k.go("roof");
     } else if (gameObj.tags.includes("hurdle")) {
+      // Only harmful while the thorns are raised.
+      if (!gameObj.isUp) return;
       playerGameObj.stop();
       await this.applyPlayerDamage(gameObj, gameObj.damage);
     } else if (
@@ -366,6 +377,36 @@ export default class MapScene extends BaseScene {
     });
   }
 
+  // Ghosts are not all rendered at once: only one is alive at a time, and the
+  // next spawn point's ghost appears once the current one is defeated (by the
+  // player's sword) or destroyed by colliding with the player.
+  public drawGhosts(ghostInsertPointName: string) {
+    this.ghostSpawnPositions = (this.spawnPointLayer.objects as any[])
+      .filter((obj) => obj && obj.name === ghostInsertPointName)
+      .map((obj) => this.k.vec2(obj.x, obj.y));
+    this.ghostSpawnIndex = 0;
+    this.spawnNextGhost();
+  }
+
+  private spawnNextGhost() {
+    const pos = this.ghostSpawnPositions[this.ghostSpawnIndex];
+    if (!pos) return; // all ghosts defeated
+    this.ghostSpawnIndex++;
+    const ghostEntity = new GhostEntity(this.k, this.map, pos);
+    ghostEntity.setGhostAi(this.player?.player ?? null);
+    const ghost = ghostEntity.ghostGameObj;
+    if (!ghost) return;
+    // Defeating the ghost with the sword summons the next one.
+    ghost.onCollide("swordHitBox", () => this.defeatGhost(ghost));
+  }
+
+  private defeatGhost(ghost: GameObj) {
+    if (!ghost.exists() || ghost.isDefeated) return;
+    ghost.isDefeated = true;
+    this.k.destroy(ghost);
+    this.spawnNextGhost();
+  }
+
   public drawOldMan(oldManInsertPointName: string) {
     const oldManSpawnPointObject = this.spawnPointLayer.objects.find(
       (obj: any) => obj.name === oldManInsertPointName,
@@ -403,16 +444,23 @@ export default class MapScene extends BaseScene {
     ) as GameObj[];
     if (hurdlesSpawnPointObjects.length) {
       hurdlesSpawnPointObjects.forEach((hurdleSpawnPointObject) => {
-        new HurdleEntity(
-          this.k,
-          this.map,
-          this.k.vec2(
-            hurdleSpawnPointObject.x + 24,
-            hurdleSpawnPointObject.y + 10,
+        this.hurdleEntities.push(
+          new HurdleEntity(
+            this.k,
+            this.map,
+            this.k.vec2(
+              hurdleSpawnPointObject.x + 24,
+              hurdleSpawnPointObject.y + 10,
+            ),
           ),
         );
       });
     }
+  }
+
+  public enableHurdlesToDetectPlayer() {
+    const playerObj = this.player?.player ?? null;
+    this.hurdleEntities.forEach((hurdle) => hurdle.watchPlayer(playerObj));
   }
 
   public drawWizard(wizardInsertPointName: string) {

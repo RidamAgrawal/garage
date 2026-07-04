@@ -6,6 +6,11 @@ import HealthBar from "../uiComponents/healthBar";
 import type DPad from "../uiComponents/dpad";
 import type ActionPad from "../uiComponents/actionpad";
 
+// Resolves an anim name for the currently selected character, e.g.
+// charAnim("walk-left") -> "char3-walk-left".
+const charAnim = (name: string) =>
+  `char${globalState.selectedCharacter}-${name}`;
+
 export class PlayerEntity {
   k: KAPLAYCtx;
   map: GameObj;
@@ -15,7 +20,7 @@ export class PlayerEntity {
     this.k = k;
     this.map = map;
     this.player = map.add([
-      k.sprite("assets", { anim: "player-idle-down" }),
+      k.sprite("assets", { anim: charAnim("idle-down") }),
       k.area({ shape: new k.Rect(k.vec2(3, 4), 10, 12) }),
       k.body(),
       k.pos(pos),
@@ -29,9 +34,14 @@ export class PlayerEntity {
         isShielding: false,
         isInteracting: false,
       },
-      health(4),
+      health(globalState.playerHealth),
       "player",
     ]);
+    // Persist HP across scenes: the player is recreated on every scene load,
+    // so mirror any health change back into globalState.
+    this.player.on("healthChanged", (hp: number) => {
+      globalState.playerHealth = hp;
+    });
     const healthBar = new HealthBar(k, this.player);
     healthBar.init();
   }
@@ -47,28 +57,28 @@ export class PlayerEntity {
           if (isKeyAlreadyPressed(k, ["up", "w", "down", "s"])) break;
           player.move(-player.speed, 0);
           player.direction = "left";
-          playAnimIfNotPlaying(player, "player-walk-left");
+          playAnimIfNotPlaying(player, charAnim("walk-left"));
           break;
         case "up":
         case "w":
           if (isKeyAlreadyPressed(k, ["left", "a", "right", "d"])) break;
           player.move(0, -player.speed);
           player.direction = "up";
-          playAnimIfNotPlaying(player, "player-walk-up");
+          playAnimIfNotPlaying(player, charAnim("walk-up"));
           break;
         case "right":
         case "d":
           if (isKeyAlreadyPressed(k, ["up", "w", "down", "s"])) break;
           player.move(player.speed, 0);
           player.direction = "right";
-          playAnimIfNotPlaying(player, "player-walk-right");
+          playAnimIfNotPlaying(player, charAnim("walk-right"));
           break;
         case "down":
         case "s":
           if (isKeyAlreadyPressed(k, ["left", "a", "right", "d"])) break;
           player.move(0, player.speed);
           player.direction = "down";
-          playAnimIfNotPlaying(player, "player-walk-down");
+          playAnimIfNotPlaying(player, charAnim("walk-down"));
           break;
       }
     });
@@ -117,29 +127,29 @@ export class PlayerEntity {
           case "left":
             player.move(-player.speed, 0);
             player.direction = "left";
-            playAnimIfNotPlaying(player, "player-walk-left");
+            playAnimIfNotPlaying(player, charAnim("walk-left"));
             break;
           case "up":
             player.move(0, -player.speed);
             player.direction = "up";
-            playAnimIfNotPlaying(player, "player-walk-up");
+            playAnimIfNotPlaying(player, charAnim("walk-up"));
             break;
           case "right":
             player.move(player.speed, 0);
             player.direction = "right";
-            playAnimIfNotPlaying(player, "player-walk-right");
+            playAnimIfNotPlaying(player, charAnim("walk-right"));
             break;
           case "down":
             player.move(0, player.speed);
             player.direction = "down";
-            playAnimIfNotPlaying(player, "player-walk-down");
+            playAnimIfNotPlaying(player, charAnim("walk-down"));
             break;
         }
         lastDirection = direction;
       } else if (lastDirection) {
         // Player released direction - stop and idle
         player.stop();
-        playAnimIfNotPlaying(player, "player-idle-" + player.direction);
+        playAnimIfNotPlaying(player, charAnim("idle-" + player.direction));
         lastDirection = null;
       }
     });
@@ -204,13 +214,13 @@ export class PlayerEntity {
 
       swordHitBoxGameObj.onAnimEnd(() => {
         k.destroy(swordHitBoxGameObj);
-        playAnimIfNotPlaying(player, "player-idle-" + player.direction);
+        playAnimIfNotPlaying(player, charAnim("idle-" + player.direction));
         player.stop();
         player.isAttacking = false;
       });
     }
 
-    playAnimIfNotPlaying(player, "player-attack-" + player.direction);
+    playAnimIfNotPlaying(player, charAnim("attack-" + player.direction));
   }
 
   public async handleShield(key: Key) {
@@ -250,7 +260,7 @@ export class PlayerEntity {
       shieldHitBoxGameObj;
     }
 
-    playAnimIfNotPlaying(player, "player-shield-" + player.direction);
+    playAnimIfNotPlaying(player, charAnim("shield-" + player.direction));
   }
 
   public stopShielding() {
@@ -258,7 +268,7 @@ export class PlayerEntity {
     const player = this.player;
     const shieldHitBoxGameObj = k.get("shieldHitBox")?.[0];
     if (shieldHitBoxGameObj) k.destroy(shieldHitBoxGameObj);
-    playAnimIfNotPlaying(player, "player-idle-" + player.direction);
+    playAnimIfNotPlaying(player, charAnim("idle-" + player.direction));
     player.stop();
     player.isShielding = false;
   }

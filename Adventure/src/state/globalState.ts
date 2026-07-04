@@ -1,11 +1,66 @@
 import type { KAPLAYCtx } from "kaplay";
+import { CHARACTER_COUNT } from "../constants";
+
+const SELECTED_CHARACTER_KEY = "adventure:selectedCharacter";
+
+function readStoredCharacter(): number | null {
+  try {
+    const raw = localStorage.getItem(SELECTED_CHARACTER_KEY);
+    if (raw === null) return null;
+    const n = parseInt(raw, 10);
+    return Number.isNaN(n) ? null : Math.max(0, Math.min(n, CHARACTER_COUNT - 1));
+  } catch {
+    return null;
+  }
+}
 
 export class GlobalState {
+  public readonly maxHealth: number = 4;
+  // Index (0..CHARACTER_COUNT-1) of the player sprite chosen on the select screen.
+  private _selectedCharacter: number = readStoredCharacter() ?? 0;
+  // Scene to return to after the character-select screen closes.
+  private _characterSelectReturnScene: string = "village";
+  get selectedCharacter() {
+    return this._selectedCharacter;
+  }
+  set selectedCharacter(val: number) {
+    this._selectedCharacter = Math.max(0, Math.min(val, CHARACTER_COUNT - 1));
+    try {
+      localStorage.setItem(
+        SELECTED_CHARACTER_KEY,
+        String(this._selectedCharacter),
+      );
+    } catch {
+      // localStorage unavailable (private mode / SSR) — keep in-memory only.
+    }
+  }
+  // True once the player has confirmed a character at least once (persisted).
+  public hasChosenCharacter(): boolean {
+    return readStoredCharacter() !== null;
+  }
+  get characterSelectReturnScene() {
+    return this._characterSelectReturnScene;
+  }
+  set characterSelectReturnScene(val: string) {
+    this._characterSelectReturnScene = val;
+  }
   private _freezePlayer: boolean = false;
   private _talkedToOldman: boolean = false;
   private _isSwordUnlocked: boolean = false;
   private _isShieldUnlocked: boolean = false;
   private _previousSceneName: string = "";
+  private _playerHealth: number = this.maxHealth;
+  // Current player HP, persisted across scene transitions so hearts don't
+  // reset to full every time the player enters a new scene.
+  set playerHealth(val: number) {
+    this._playerHealth = Math.max(0, Math.min(val, this.maxHealth));
+  }
+  get playerHealth() {
+    return this._playerHealth;
+  }
+  public resetPlayerHealth() {
+    this._playerHealth = this.maxHealth;
+  }
   set freezePlayer(val: boolean) {
     this._freezePlayer = val;
   }

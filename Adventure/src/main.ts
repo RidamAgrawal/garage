@@ -7,6 +7,8 @@ import {
   WINDMILL_ANIMS,
 } from "./constants";
 import { savePreviousScene, toggleFullscreen } from "./utils";
+import { registerCharacterSelectScene } from "./scenes/characterSelect";
+import { globalState } from "./state/stateManager";
 
 k.loadFont("gameboy", "./assets/gb.ttf");
 k.loadSprite("assets", "./assets/worldBlocks.png", {
@@ -130,6 +132,7 @@ k.scene("world4", async () => {
   await scene.init({});
   scene.drawPlayer();
   scene.handlePlayerCollision();
+  scene.drawGhosts("ghost");
   savePreviousScene(k);
 });
 
@@ -154,6 +157,7 @@ k.scene("fortRoom2", async () => {
   await scene.init({});
   scene.drawPlayer();
   scene.drawHurdles("hurdle");
+  scene.enableHurdlesToDetectPlayer();
   scene.handlePlayerCollision();
   savePreviousScene(k);
 });
@@ -173,4 +177,21 @@ k.scene("fortRoom3", async () => {
   savePreviousScene(k);
 });
 
-k.go("village");
+registerCharacterSelectScene(k);
+
+// Press "c" anytime to re-open the character selector; it returns to the
+// scene you were in.
+k.onKeyPress("c", () => {
+  const current = k.getSceneName();
+  if (current === "characterSelect") return;
+  globalState.characterSelectReturnScene = current ?? "village";
+  k.go("characterSelect");
+});
+
+// First launch (no saved choice) opens the selector; afterwards go straight in.
+if (globalState.hasChosenCharacter()) {
+  k.go("village");
+} else {
+  globalState.characterSelectReturnScene = "village";
+  k.go("characterSelect");
+}
