@@ -60,6 +60,14 @@ function buildCharacterAnims(): Record<string, TileAnim | number> {
 export const WORLD_BLOCK_ANIMS: Record<number | string, TileAnim | number> = {
   489: { frames: [489, 490], speed: 8, loop: true },
   969: { frames: [969, 970, 971, 972, 973, 974], speed: 8, loop: true },
+  // Spinning coin (row 24, cols 33-38), just above the attack after-effects.
+  "coin": { frames: [969, 970, 971, 972, 973, 974], loop: true, speed: 10 },
+  // Rabbit NPC (rows 20-21, laid out like the slime): row20 = down (780,781) +
+  // right (782,783); row21 = up (819,820) + left (821,822).
+  "rabbit-idle-down": { frames: [780, 781], loop: true, speed: 3 },
+  "rabbit-idle-right": { frames: [782, 783], loop: true, speed: 3 },
+  "rabbit-idle-up": { frames: [819, 820], loop: true, speed: 3 },
+  "rabbit-idle-left": { frames: [821, 822], loop: true, speed: 3 },
   ...buildCharacterAnims(),
   "slime-idle-down": 858,
   "slime-walk-down": { from: 858, to: 859, loop: true, speed: 8 },

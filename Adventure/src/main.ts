@@ -1,6 +1,6 @@
 import "./style.css";
 import k from "./kaplayContext";
-import MapScene, { type SpawnHandler } from "./scenes/MapScene";
+import MapScene from "./scenes/MapScene";
 import {
   WORLD_BLOCK_ANIMS,
   WORLD_BLOCK_ANIMS2,
@@ -27,6 +27,7 @@ k.loadSound("enemyMove2", "./assets/sounds/Sound Effect (enemyMove2).wav");
 k.loadSound("defeated", "./assets/sounds/Sound Effect (defeated).wav");
 k.loadSound("spell", "./assets/sounds/Sound Effect (spells).wav");
 k.loadSound("obtainShield", "./assets/sounds/Sound Effect (obtainShield).wav");
+k.loadSound("coin", "./assets/sounds/Sound Effect (coin).wav");
 
 document.getElementById("fullscreen-btn")?.addEventListener("click", () => {
   toggleFullscreen();
@@ -41,21 +42,9 @@ k.scene("village", async () => {
   await scene.init({});
   scene.drawPlayer();
   scene.handlePlayerCollision();
+  scene.drawCoins("coin");
   savePreviousScene(k);
 });
-
-const interiorScene =
-  (mapPath: string, spawnHandler: Record<string, SpawnHandler>) => async () => {
-    const scene = new MapScene(k, mapPath, {
-      red: 16,
-      green: 12,
-      blue: 70,
-    });
-    await scene.init(spawnHandler);
-    scene.drawPlayer();
-    scene.handlePlayerCollision();
-    savePreviousScene(k);
-  };
 
 k.scene("house1", async () => {
   const scene = new MapScene(k, "./assets/maps/house1.json", {
@@ -70,7 +59,19 @@ k.scene("house1", async () => {
   scene.enableOldManToNoticePlayer();
   savePreviousScene(k);
 });
-k.scene("house2", interiorScene("./assets/maps/house2.json", {}));
+k.scene("house2", async () => {
+  const scene = new MapScene(k, "./assets/maps/house2.json", {
+    red: 16,
+    green: 12,
+    blue: 70,
+  });
+  await scene.init({});
+  scene.drawPlayer();
+  scene.handlePlayerCollision();
+  scene.drawRabbit("rabbit");
+  scene.drawHeartChest("heartChest");
+  savePreviousScene(k);
+});
 
 k.scene("forest", async () => {
   const scene = new MapScene(k, "./assets/maps/forest.json", {

@@ -3,6 +3,7 @@ import { health, isKeyAlreadyPressed, playAnimIfNotPlaying } from "../utils";
 import { globalState } from "../state/stateManager";
 import type { Facing } from "./oldman";
 import HealthBar from "../uiComponents/healthBar";
+import CoinCounter from "../uiComponents/coinCounter";
 import type DPad from "../uiComponents/dpad";
 import type ActionPad from "../uiComponents/actionpad";
 
@@ -44,6 +45,8 @@ export class PlayerEntity {
     });
     const healthBar = new HealthBar(k, this.player);
     healthBar.init();
+    const coinCounter = new CoinCounter(k);
+    coinCounter.init();
   }
 
   enableMovement() {

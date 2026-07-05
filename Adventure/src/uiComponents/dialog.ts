@@ -45,20 +45,38 @@ export function dialogue(
     ]);
 
     let index = 0;
-    await addChars(k, textContainer, content[index]);
-    let lineFinished = true;
+    let typing = false;
+    let skip = false;
 
-    const advanceDialogue = async () => {
-      if (!lineFinished) return;
+    // Types one line char-by-char. Guarded by `typing` so only one runs at a
+    // time; setting `skip` finishes the current line instantly.
+    const typeLine = async (line: string) => {
+      typing = true;
+      skip = false;
+      textContainer.text = "";
+      for (const char of line) {
+        if (skip) break;
+        textContainer.text += char;
+        await new Promise((r) => setTimeout(r, 30));
+      }
+      textContainer.text = line;
+      typing = false;
+    };
 
+    const advanceDialogue = () => {
+      // While a line is still typing, a press completes it instead of
+      // starting a second (concurrent) typewriter that scrambles the text.
+      if (typing) {
+        skip = true;
+        return;
+      }
       index++;
       if (index >= content.length) {
         cleanup();
         resolve();
         return;
       }
-      textContainer.text = "";
-      await addChars(k, textContainer, content[index]);
+      typeLine(content[index]);
     };
 
     // Keyboard input (for desktop)
@@ -79,5 +97,8 @@ export function dialogue(
       k.destroy(textContainer);
       k.destroy(dialogueBox);
     };
+
+    // Start typing the first line.
+    typeLine(content[index]);
   });
 }

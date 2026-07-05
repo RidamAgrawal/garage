@@ -1,4 +1,4 @@
-import type { Collision, GameObj, KAPLAYCtx } from "kaplay";
+import type { Collision, GameObj, KAPLAYCtx, Vec2 } from "kaplay";
 import BaseScene from "./BaseScene";
 import {
   fetchMapData,
@@ -23,6 +23,8 @@ import { WindmillEntity } from "../entities/windmill";
 import { HurdleEntity } from "../entities/hurdle";
 import { WizardEntity } from "../entities/wizard";
 import { GhostEntity } from "../entities/ghost";
+import { dialogue } from "../uiComponents/dialog";
+import rabbitLines from "../content/rabbitContent";
 
 export type backgroundConfig = {
   red: number;
@@ -226,6 +228,8 @@ export default class MapScene extends BaseScene {
       // which summons the next ghost.
       await this.applyPlayerDamage(gameObj, gameObj.attackPower);
       this.defeatGhost(gameObj);
+    } else if (gameObj.tags.includes("coin")) {
+      this.collectCoin(gameObj);
     } else if (
       gameObj.tags.includes("windmill") ||
       gameObj.tags.includes("windmill1") ||
@@ -373,7 +377,7 @@ export default class MapScene extends BaseScene {
         this.map,
         this.k.vec2(slimeObj.x, slimeObj.y),
       );
-      slimeEntity?.setSlimeAi();
+      slimeEntity?.setSlimeAi((slime) => this.spawnCoinAt(slime.pos));
     });
   }
 
@@ -403,8 +407,179 @@ export default class MapScene extends BaseScene {
   private defeatGhost(ghost: GameObj) {
     if (!ghost.exists() || ghost.isDefeated) return;
     ghost.isDefeated = true;
+    const dropPos = ghost.pos.clone();
     this.k.destroy(ghost);
+    this.spawnCoinAt(dropPos);
     this.spawnNextGhost();
+  }
+
+  // Creates a single collectible coin game object. A coinKey (only for coins
+  // placed from the map) makes the pickup permanent across scene re-entry.
+  private createCoin(pos: Vec2, coinKey?: string) {
+    const k = this.k;
+    return k.add([
+      k.sprite("assets", { anim: "coin" }),
+      k.pos(pos),
+      k.area({ shape: new k.Rect(k.vec2(0), 12, 14) }),
+      k.anchor("center"),
+      k.opacity(),
+      k.z(1),
+      { collected: false, coinKey: coinKey ?? null },
+      "coin",
+    ]);
+  }
+
+  // Places collectible coins at every "coin" spawn point on the map, skipping
+  // any that have already been collected so they are picked up only once.
+  public drawCoins(coinInsertPointName: string) {
+    const k = this.k;
+    const sceneName = k.getSceneName();
+    (this.spawnPointLayer.objects as any[])
+      .filter((obj) => obj && obj.name === coinInsertPointName)
+      .forEach((obj) => {
+        const coinKey = `${sceneName}:${obj.id}`;
+        if (globalState.isCoinCollected(coinKey)) return;
+        this.createCoin(k.vec2(obj.x + 8, obj.y + 8), coinKey);
+      });
+  }
+
+  // Drops an untracked coin at a position (e.g. from a defeated enemy).
+  public spawnCoinAt(pos: Vec2) {
+    this.createCoin(pos.clone());
+  }
+
+  // A static rabbit NPC that shows a hint dialogue when the player gets close.
+  // Uses proximity (not onCollide) because a solid body's collision resolution
+  // prevents the areas from overlapping, so onCollide won't fire reliably.
+  public drawRabbit(rabbitInsertPointName: string) {
+    const k = this.k;
+    const obj = (this.spawnPointLayer.objects as any[]).find(
+      (o) => o && o.name === rabbitInsertPointName,
+    );
+    if (!obj) return;
+    const rabbit = k.add([
+      k.sprite("assets", { anim: "rabbit-idle-down" }),
+      k.pos(obj.x, obj.y),
+      k.area({ shape: new k.Rect(k.vec2(3, 4), 10, 12) }),
+      k.body({ isStatic: true }),
+      k.opacity(),
+      k.z(1),
+      "rabbit",
+    ]);
+
+    let talking = false;
+    let inRange = false;
+    const updateRef = k.onUpdate(() => {
+      const player = this.player?.player;
+      if (!player || !rabbit.exists()) return;
+      // Turn to face the player along the dominant axis.
+      const dx = player.pos.x - rabbit.pos.x;
+      const dy = player.pos.y - rabbit.pos.y;
+      const facing =
+        Math.abs(dx) > Math.abs(dy)
+          ? dx > 0
+            ? "right"
+            : "left"
+          : dy > 0
+            ? "down"
+            : "up";
+      const faceAnim = `rabbit-idle-${facing}`;
+      if (rabbit.curAnim() !== faceAnim) rabbit.play(faceAnim);
+      const near = player.pos.dist(rabbit.pos) <= 24;
+      if (near && !inRange && !talking && !globalState.freezePlayer) {
+        inRange = true;
+        talking = true;
+        player.isInteracting = true;
+        globalState.freezePlayer = true;
+        dialogue(k, k.vec2(50, 50), rabbitLines.english).then(() => {
+          player.isInteracting = false;
+          globalState.freezePlayer = false;
+          talking = false;
+        });
+      } else if (!near) {
+        inRange = false;
+      }
+    });
+    k.onSceneLeave(() => updateRef.cancel());
+  }
+
+  // A one-time reward chest: walking close to it opens the chest and grants the
+  // player a permanent extra heart. Won't reappear once opened.
+  public drawHeartChest(chestInsertPointName: string) {
+    const k = this.k;
+    const sceneName = k.getSceneName();
+    const obj = (this.spawnPointLayer.objects as any[]).find(
+      (o) => o && o.name === chestInsertPointName,
+    );
+    if (!obj) return;
+    const key = `${sceneName}:${obj.id}`;
+    if (globalState.isChestOpened(key)) return;
+
+    const chest = this.map.add([
+      k.sprite("assets", { frame: 137 }),
+      k.pos(obj.x, obj.y),
+      k.opacity(),
+      k.z(1),
+      { opened: false },
+      "heartChest",
+    ]);
+
+    const updateRef = k.onUpdate(() => {
+      const player = this.player?.player;
+      if (!player || !chest.exists() || chest.opened) return;
+      if (player.pos.dist(chest.pos) <= 22) {
+        chest.opened = true;
+        updateRef.cancel();
+        globalState.markChestOpened(key);
+        this.openHeartChest(chest);
+      }
+    });
+    k.onSceneLeave(() => updateRef.cancel());
+  }
+
+  private openHeartChest(chest: GameObj) {
+    const k = this.k;
+    chest.play("chest-open");
+    chest.on("animEnd", () => {
+      k.play("obtainShield");
+      this.giveExtraHeart();
+      // Float a heart up out of the chest, then fade it out.
+      const startY = chest.pos.y;
+      const heart = this.map.add([
+        k.sprite("assets", { frame: 176 }),
+        k.pos(chest.pos.x, startY),
+        k.opacity(1),
+        k.z(3),
+        "floatingHeart",
+      ]);
+      k.tween(startY, startY - 20, 1.2, (v) => (heart.pos.y = v), k.easings.easeOutCubic);
+      k.wait(0.6, () => {
+        k.tween(1, 0, 0.6, (v) => (heart.opacity = v), k.easings.easeInCubic);
+      });
+      k.wait(1.2, () => heart.exists() && heart.destroy());
+    });
+  }
+
+  private giveExtraHeart() {
+    const player = this.player?.player;
+    if (!player) return;
+    globalState.addMaxHeart();
+    player.setHealth(player.getHealth() + 1);
+  }
+
+  private collectCoin(coin: GameObj) {
+    if (!coin.exists() || coin.collected) return;
+    coin.collected = true;
+    const k = this.k;
+    if (coin.coinKey) globalState.markCoinCollected(coin.coinKey);
+    globalState.coins += 1;
+    k.play("coin", { volume: 0.6 });
+    // Float up and fade out, then remove.
+    coin.z = 3;
+    const target = coin.pos.add(0, -24);
+    k.tween(coin.pos, target, 0.4, (v) => (coin.pos = v), k.easings.easeOutQuad);
+    k.tween(coin.opacity, 0, 0.4, (v) => (coin.opacity = v), k.easings.linear);
+    k.wait(0.4, () => coin.exists() && coin.destroy());
   }
 
   public drawOldMan(oldManInsertPointName: string) {

@@ -174,10 +174,15 @@ export async function blinkEffect(k: KAPLAYCtx, entity: GameObj) {
   );
 }
 
-export function onAttacked(k: KAPLAYCtx, entity: GameObj) {
+export function onAttacked(
+  k: KAPLAYCtx,
+  entity: GameObj,
+  onKilled?: (entity: GameObj) => void,
+) {
   entity.onCollide("swordHitBox", async () => {
     if (entity.isAttacking) return;
     if (entity.hp() <= 0) {
+      onKilled?.(entity);
       k.destroy(entity);
       return;
     }
@@ -225,7 +230,7 @@ export function health(max: number) {
     },
 
     getMaxHealth() {
-      return 4;
+      return globalState.maxHealth;
     },
 
     damage(this: GameObj, v: number) {

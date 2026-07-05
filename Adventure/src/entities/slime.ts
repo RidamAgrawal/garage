@@ -37,7 +37,7 @@ export class SlimeEntity{
         })
     }
 
-    public setSlimeAi() {
+    public setSlimeAi(onKilled?: (slime: GameObj) => void) {
         const k = this.k;
         const slime = this.slimeGameObj;
         if(!slime) return;
@@ -70,7 +70,7 @@ export class SlimeEntity{
             up.cancel();
             down.cancel();
         });
-        onAttacked(k, slime);
+        onAttacked(k, slime, onKilled);
         onShield(k, slime);
         // slime.onCollide("shieldHitBox", async () => {
         //     k.debug.log("slime collided with shield");

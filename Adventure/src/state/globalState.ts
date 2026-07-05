@@ -15,7 +15,14 @@ function readStoredCharacter(): number | null {
 }
 
 export class GlobalState {
-  public readonly maxHealth: number = 4;
+  // Maximum hearts. Grows when the player finds an extra-heart chest.
+  private _maxHealth: number = 4;
+  get maxHealth() {
+    return this._maxHealth;
+  }
+  public addMaxHeart() {
+    this._maxHealth += 1;
+  }
   // Index (0..CHARACTER_COUNT-1) of the player sprite chosen on the select screen.
   private _selectedCharacter: number = readStoredCharacter() ?? 0;
   // Scene to return to after the character-select screen closes.
@@ -60,6 +67,31 @@ export class GlobalState {
   }
   public resetPlayerHealth() {
     this._playerHealth = this.maxHealth;
+  }
+  // Running total of coins the player has collected (persists across scenes).
+  private _coins: number = 0;
+  get coins() {
+    return this._coins;
+  }
+  set coins(val: number) {
+    this._coins = Math.max(0, val);
+  }
+  // Keys ("<scene>:<coinId>") of coins already picked up, so they never respawn.
+  private _collectedCoins: Set<string> = new Set();
+  public isCoinCollected(key: string): boolean {
+    return this._collectedCoins.has(key);
+  }
+  public markCoinCollected(key: string): void {
+    this._collectedCoins.add(key);
+  }
+  // Keys ("<scene>:<chestId>") of reward chests already opened, so their
+  // one-time reward can't be farmed by leaving and re-entering the room.
+  private _openedChests: Set<string> = new Set();
+  public isChestOpened(key: string): boolean {
+    return this._openedChests.has(key);
+  }
+  public markChestOpened(key: string): void {
+    this._openedChests.add(key);
   }
   set freezePlayer(val: boolean) {
     this._freezePlayer = val;
