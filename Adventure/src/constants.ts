@@ -180,7 +180,19 @@ export const WORLD_BLOCK_ANIMS2: Record<number|string,any> = {
     y: 224,
     height: 48,
     width: 48,
-  }
+  },
+  // Blackletter digit glyphs. 0-5 sit next to the "U.1" label; 6-9 live in the
+  // two extra tile rows appended at the bottom of the sheet.
+  "digit-0": { x: 55, y: 195, width: 18, height: 26 },
+  "digit-1": { x: 90, y: 195, width: 12, height: 26 },
+  "digit-2": { x: 120, y: 195, width: 16, height: 26 },
+  "digit-3": { x: 151, y: 195, width: 18, height: 26 },
+  "digit-4": { x: 180, y: 195, width: 22, height: 26 },
+  "digit-5": { x: 215, y: 194, width: 18, height: 26 },
+  "digit-6": { x: 7, y: 498, width: 18, height: 26 },
+  "digit-7": { x: 39, y: 498, width: 18, height: 26 },
+  "digit-8": { x: 71, y: 498, width: 18, height: 26 },
+  "digit-9": { x: 103, y: 498, width: 18, height: 26 },
 }
 
 export const WINDMILL_ANIMS: Record<number|string,any> = {

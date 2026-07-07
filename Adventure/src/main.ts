@@ -13,7 +13,7 @@ import { globalState } from "./state/stateManager";
 k.loadFont("gameboy", "./assets/gb.ttf");
 k.loadSprite("assets", "./assets/worldBlocks.png", {
   sliceX: 39,
-  sliceY: 31,
+  sliceY: 33,
   anims: WORLD_BLOCK_ANIMS,
 });
 k.loadSpriteAtlas("assets/worldBlocks.png", WORLD_BLOCK_ANIMS2);

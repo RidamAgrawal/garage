@@ -3,9 +3,14 @@ import { globalState } from "../state/stateManager";
 
 // Shows the running coin total at the top-right of the screen, mirroring the
 // health bar on the left. Auto-updates whenever globalState.coins changes.
+// The count is drawn with the tileset's blackletter digit sprites
+// ("digit-0".."digit-9" in worldBlocks.png) instead of a font.
+const DIGIT_SCALE = 1.25;
+const DIGIT_GAP = 4;
+
 export default class CoinCounter {
   k: KAPLAYCtx;
-  countText: GameObj | null = null;
+  private digitObjs: GameObj[] = [];
   private lastCount = -1;
 
   constructor(k: KAPLAYCtx) {
@@ -25,22 +30,34 @@ export default class CoinCounter {
       "coinCounter",
     ]);
 
-    this.countText = k.add([
-      k.text(String(globalState.coins), { font: "gameboy", size: 32 }),
-      k.pos(rightX, 24),
-      k.anchor("topright"),
-      k.color(255, 214, 92),
-      k.fixed(),
-      k.z(100),
-      "coinCounter",
-    ]);
-
     k.onUpdate(() => {
-      if (!this.countText) return;
       if (this.lastCount !== globalState.coins) {
         this.lastCount = globalState.coins;
-        this.countText.text = String(globalState.coins);
+        this.renderCount(this.lastCount, rightX);
       }
     });
+  }
+
+  // Digits are laid out right-to-left from rightX so the number stays
+  // right-aligned as it grows. Each digit glyph has its own width.
+  private renderCount(count: number, rightX: number) {
+    const k = this.k;
+    this.digitObjs.forEach((obj) => obj.destroy());
+    this.digitObjs = [];
+
+    let x = rightX;
+    for (const d of String(count).split("").reverse()) {
+      const digitObj = k.add([
+        k.sprite(`digit-${d}`),
+        k.pos(x, 24),
+        k.anchor("topright"),
+        k.scale(DIGIT_SCALE),
+        k.fixed(),
+        k.z(100),
+        "coinCounter",
+      ]);
+      x -= digitObj.width * DIGIT_SCALE + DIGIT_GAP;
+      this.digitObjs.push(digitObj);
+    }
   }
 }
