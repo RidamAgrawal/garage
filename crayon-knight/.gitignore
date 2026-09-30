@@ -23,4 +23,30 @@ Thumbs.db
 
 # Logs
 *.log
-npm-debug.log   
+npm-debug.log
+
+# =============================================
+# 🔒 PAID / PRIVATE ASSETS — DO NOT PUSH
+# =============================================
+# Yeh paid sprites hain jo public repo mein push nahi hone chahiye.
+# Assets locally rakhne hain, .gitignore se exclude hain.
+# Clone karne waalo ko ASSETS_README.md padhna chahiye.
+
+# All character sprites (paid asset pack)
+public/assets/characters/
+
+# Tilesets (if paid)
+public/assets/tilesets/
+
+# Audio assets (if paid/licensed)
+public/assets/audio/
+
+# Godot import files (if accidentally copied)
+*.import
+
+# =============================================
+# ✅ KEEP THESE (free/self-made assets)
+# =============================================
+# public/assets/data/ — game config JSON files (free, self-made)
+# public/assets/ui/ — if self-made UI elements
+# Any placeholder assets you create yourself
