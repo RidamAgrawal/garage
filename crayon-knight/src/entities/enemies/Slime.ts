@@ -4,14 +4,15 @@ import { AssetKeys } from '@/constants/AssetKeys';
 import { ENEMY_CONFIGS } from '@/config/BalanceConfig';
 
 /**
- * Slime Enemy — Contact damage with bouncy movement
+ * Slime Enemy — Contact damage with bouncy movement (uses Spider sprite)
  * 
  * Polymorphism: Same Enemy interface, different behavior
  * Slime ka patrol pattern bouncy hai — short bursts mein move karta hai
  */
 export class Slime extends Enemy {
     constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, AssetKeys.SLIME, ENEMY_CONFIGS.slime);
+        // Spider sprite use karta hai
+        super(scene, x, y, AssetKeys.SPIDER_IDLE, ENEMY_CONFIGS.slime);
         this.enemyType = 'slime';
     }
 

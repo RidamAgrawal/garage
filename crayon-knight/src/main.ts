@@ -13,6 +13,11 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, PreloadScene, MainMenuScene, GameScene, UIScene, GameOverScene],
 };
 
+await Promise.all([
+  document.fonts.load('16px "Press Start 2P"'),
+  document.fonts.load('16px "Rubik"')
+]);
+
 // Game start! 🎮
 const game = new Phaser.Game(config);
 

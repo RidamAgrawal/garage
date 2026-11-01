@@ -12,8 +12,7 @@ export class RunState implements IState {
     }
 
     enter(): void {
-        const textureKey = this.entity.texture ? this.entity.texture.key : 'default';
-        this.entity.play(`${textureKey}-run`, true);
+        this.entity.play(`${this.entity.animPrefix}-run`, true);
     }
 
     update(): void {

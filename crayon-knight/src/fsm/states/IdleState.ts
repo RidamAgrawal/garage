@@ -12,8 +12,7 @@ export class IdleState implements IState {
     }
 
     enter(): void {
-        const textureKey = this.entity.texture ? this.entity.texture.key : 'default';
-        this.entity.play(`${textureKey}-idle`, true);
+        this.entity.play(`${this.entity.animPrefix}-idle`, true);
         if (this.entity.body) {
             this.entity.body.setVelocity(0, 0);
         }

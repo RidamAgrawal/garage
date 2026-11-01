@@ -32,14 +32,19 @@ export class Player extends Entity {
     private enemyGroup?: Phaser.Physics.Arcade.Group;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, AssetKeys.PLAYER);
+        super(scene, x, y, AssetKeys.WARRIOR_IDLE);
+        
+        // Animation prefix — FSM states isse use karke animation build karte hain
+        // e.g. "warrior" → "warrior-idle", "warrior-run", "warrior-attack"
+        this.animPrefix = 'warrior';
         
         // Physics body setup — hitbox ko sprite se chhota rakhte hain
         // taaki collision natural feel kare
         if (this.body) {
             const body = this.body as Phaser.Physics.Arcade.Body;
-            body.setSize(20, 24);
-            body.setOffset(6, 4);
+            body.setSize(40, 50);
+            body.setOffset(76, 120);
+            this.setScale(0.5);
             body.setCollideWorldBounds(true);
         }
         this.setDepth(5);

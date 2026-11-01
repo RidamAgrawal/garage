@@ -16,6 +16,13 @@ export class Entity extends Phaser.Physics.Arcade.Sprite {
      */
     private components: Map<string, IComponent> = new Map();
 
+    /**
+     * Animation prefix — FSM states isse use karke animation keys banate hain
+     * e.g. animPrefix = "warrior" → idle state plays "warrior-idle"
+     * Isse texture key aur animation key decouple ho jaate hain
+     */
+    public animPrefix: string = 'default';
+
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);

@@ -1,6 +1,7 @@
-import Phaser from 'phaser';
-import { SceneKeys } from '@/constants/SceneKeys';
-import { AssetKeys } from '@/constants/AssetKeys';
+import Phaser from "phaser";
+import { SceneKeys } from "@/constants/SceneKeys";
+import { AnimationAssets, AssetKeys, TILESET_IMAGES, TILEMAPS } from "@/constants/AssetKeys";
+import { registerAllAnimations } from "@/config/AnimationConfig";
 
 /**
  * Preload Scene
@@ -21,30 +22,47 @@ export class PreloadScene extends Phaser.Scene {
     progressBox.fillStyle(0x222222, 0.8);
     progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
 
-    const loadingText = this.add.text(width / 2, height / 2 - 50, '0%', {
-      fontFamily: 'monospace',
-      fontSize: '20px',
-      color: '#ffffff'
-    }).setOrigin(0.5);
+    const loadingText = this.add
+      .text(width / 2, height / 2 - 50, "0%", {
+        fontFamily: "monospace",
+        fontSize: "20px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5);
 
-    this.load.on('progress', (value: number) => {
+    this.load.on("progress", (value: number) => {
       progressBar.clear();
       progressBar.fillStyle(0xffffff, 1);
       progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30);
       loadingText.setText(`${Math.floor(value * 100)}%`);
     });
 
-    this.load.on('complete', () => {
+    this.load.on("complete", () => {
       progressBar.destroy();
       progressBox.destroy();
       loadingText.destroy();
     });
 
     this.generatePlaceholderTextures();
+
+    for (const assetKey in AnimationAssets) {
+      const assetData = AnimationAssets[assetKey];
+      this.loadSpriteSheet(
+        assetKey,
+        assetData.path,
+        assetData.frameWidth,
+        assetData.frameHeight,
+      );
+    }
+    this.loadTileSetImages();
+    this.loadTileMapJson();
   }
 
   create() {
-    this.scene.start(SceneKeys.MAIN_MENU);
+    registerAllAnimations(this);
+    document.fonts.ready.then(() => {
+      this.scene.start(SceneKeys.MAIN_MENU);
+    });
   }
 
   /**
@@ -54,7 +72,7 @@ export class PreloadScene extends Phaser.Scene {
   private generatePlaceholderTextures() {
     const graphics = this.add.graphics({ x: 0, y: 0 });
     graphics.setVisible(false);
-    
+
     // Player: 32x32 blue rect with a white triangle pointer (facing right)
     graphics.fillStyle(0x0000ff);
     graphics.fillRect(0, 0, 32, 32);
@@ -83,13 +101,13 @@ export class PreloadScene extends Phaser.Scene {
 
     // Tileset: 64x32 texture containing both (0 = floor/brown, 1 = wall/grey)
     // Map index 0 is at x:0, map index 1 is at x:32
-    graphics.fillStyle(0x8B4513); // Brown floor
+    graphics.fillStyle(0x8b4513); // Brown floor
     graphics.fillRect(0, 0, 32, 32);
     graphics.fillStyle(0x808080); // Grey wall
     graphics.fillRect(32, 0, 32, 32);
     graphics.generateTexture(AssetKeys.DUNGEON_TILES, 64, 32);
     // Note: TilemapManager expects 'dungeon-tiles' name, so let's also map it to that string just in case
-    graphics.generateTexture('dungeon-tiles', 64, 32);
+    graphics.generateTexture("dungeon-tiles", 64, 32);
     graphics.clear();
 
     // Heart sprites: 16x16
@@ -102,11 +120,25 @@ export class PreloadScene extends Phaser.Scene {
     // Half Heart
     graphics.fillStyle(0xff0000);
     graphics.beginPath();
-    graphics.arc(8, 8, 8, Phaser.Math.DegToRad(90), Phaser.Math.DegToRad(270), false);
+    graphics.arc(
+      8,
+      8,
+      8,
+      Phaser.Math.DegToRad(90),
+      Phaser.Math.DegToRad(270),
+      false,
+    );
     graphics.fillPath();
     graphics.lineStyle(2, 0x888888, 1);
     graphics.beginPath();
-    graphics.arc(8, 8, 8, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(90), false);
+    graphics.arc(
+      8,
+      8,
+      8,
+      Phaser.Math.DegToRad(270),
+      Phaser.Math.DegToRad(90),
+      false,
+    );
     graphics.strokePath();
     graphics.generateTexture(AssetKeys.HEART_HALF, 16, 16);
     graphics.clear();
@@ -124,10 +156,34 @@ export class PreloadScene extends Phaser.Scene {
     graphics.clear();
   }
 
-  private loadSpriteSheet(key: string, fileName: string, frameWidth: number, frameHeight: number): void {
-    this.load.spritesheet(key, `assets/spritesheets/${fileName}`, {
+  private loadSpriteSheet(
+    key: string,
+    fileName: string,
+    frameWidth: number,
+    frameHeight: number,
+  ): void {
+    this.load.spritesheet(key, fileName, {
       frameWidth,
       frameHeight,
     });
+  }
+
+  /**
+   * Tileset images load karo — TILESET_IMAGES registry se loop karke
+   * Naya tileset add karna ho toh bas AssetKeys.ts mein entry add karo!
+   */
+  private loadTileSetImages(): void {
+    for (const tileset of TILESET_IMAGES) {
+      this.load.image(tileset.key, tileset.path);
+    }
+  }
+
+  /**
+   * Tilemap JSON load karo — TILEMAPS registry se loop karke
+   */
+  private loadTileMapJson(): void {
+    for (const tilemap of TILEMAPS) {
+      this.load.tilemapTiledJSON(tilemap.key, tilemap.path);
+    }
   }
 }

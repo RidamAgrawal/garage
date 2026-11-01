@@ -4,14 +4,15 @@ import { AssetKeys } from '@/constants/AssetKeys';
 import { ENEMY_CONFIGS } from '@/config/BalanceConfig';
 
 /**
- * Skeleton Enemy — Melee attacker
+ * Skeleton Enemy — Melee attacker (uses Skull sprite)
  * 
  * Polymorphism: Enemy base class se inherit karta hai
  * par apna specific attack behavior override karta hai
  */
 export class Skeleton extends Enemy {
     constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, AssetKeys.SKELETON, ENEMY_CONFIGS.skeleton);
+        // Skull sprite use karta hai — Skeleton texture nahi hai toh Skull se represent karte hain
+        super(scene, x, y, AssetKeys.SKULL_IDLE, ENEMY_CONFIGS.skeleton);
         this.enemyType = 'skeleton';
     }
 }

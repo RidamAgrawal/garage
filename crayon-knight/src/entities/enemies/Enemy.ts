@@ -48,18 +48,28 @@ export class Enemy extends Entity {
             knockbackForce: number;
             detectionRange: number;
             goldDrop: { min: number; max: number };
+            animPrefix?: string;   // Animation prefix — FSM states ke liye
+            scale?: number;        // Sprite scale for game world fit
         }
     ) {
         super(scene, x, y, texture);
+        
+        // Animation prefix set karo — agar config mein nahi hai toh texture key hi use hoga
+        this.animPrefix = config.animPrefix ?? texture;
         
         this.setDepth(4);
         this.detectionRange = config.detectionRange;
         this.goldDrop = config.goldDrop;
 
+        // Scale set karo (sprites 192px+ hain, game world 32px tile based)
+        if (config.scale) {
+            this.setScale(config.scale);
+        }
+
         if (this.body) {
             const body = this.body as Phaser.Physics.Arcade.Body;
-            body.setSize(24, 24);
-            body.setOffset(4, 4);
+            body.setSize(40, 40);
+            body.setOffset(76, 120);
             body.setCollideWorldBounds(true);
         }
         
