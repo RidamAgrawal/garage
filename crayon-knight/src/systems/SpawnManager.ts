@@ -67,6 +67,7 @@ export class SpawnManager {
 
     if (enemy) {
       enemy.setTarget(this.player);
+      enemy.setDepth(20);
       this.enemyGroup.add(enemy);
     }
 

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
 import { EventKeys } from "@/constants/EventKeys";
 import { EventBus } from "@/events/EventBus";
-import { TilemapManager } from "@/dungeon/TilemapManager";
+import { TilemapManager } from "@/dungeon";
 import { SpawnManager } from "@/systems/SpawnManager";
 import { Player } from "@/entities/player/Player";
 

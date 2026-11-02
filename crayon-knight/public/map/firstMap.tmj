@@ -205,7 +205,7 @@
          "name":"Elevated Ground Cliff",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":30,
          "x":0,
          "y":0
@@ -730,16 +730,41 @@
                  "name":"Enemy",
                  "opacity":1,
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"string",
+                         "value":"skeleton"
+                        }],
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
                  "width":0,
                  "x":1472,
                  "y":192
+                }, 
+                {
+                 "height":0,
+                 "id":80,
+                 "name":"Enemy",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"string",
+                         "value":"goblin"
+                        }],
+                 "rotation":0,
+                 "type":"Enemy",
+                 "visible":true,
+                 "width":0,
+                 "x":1344,
+                 "y":384
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -770,7 +795,7 @@
          "y":0
         }],
  "nextlayerid":15,
- "nextobjectid":80,
+ "nextobjectid":82,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

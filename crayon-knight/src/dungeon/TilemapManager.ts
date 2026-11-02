@@ -1,5 +1,5 @@
-import Phaser from 'phaser';
-import { TILEMAPS } from '@/constants/AssetKeys';
+import Phaser from "phaser";
+import { TILEMAPS } from "@/constants/AssetKeys";
 
 /**
  * TilemapManager — Tiled JSON map ko Phaser mein load aur render karta hai
@@ -31,16 +31,18 @@ export class TilemapManager {
   }
 
   /**
-   * Collision bodies banao — "cliff boundaries" objectgroup se.
+   * Collision bodies banao — "boundaries" objectgroup se.
    * Tiled mein rectangle/line objects as static physics bodies.
    * @returns Static physics group containing all collision bodies
    */
-  public createCliffColliders(scene: Phaser.Scene): Phaser.Physics.Arcade.StaticGroup {
+  public createCliffColliders(
+    scene: Phaser.Scene,
+  ): Phaser.Physics.Arcade.StaticGroup {
     const staticGroup = scene.physics.add.staticGroup();
 
-    const cliffLayer = this.map.getObjectLayer('cliff boundaries');
+    const cliffLayer = this.map.getObjectLayer("boundaries");
     if (!cliffLayer) {
-      console.warn('[TilemapManager] "cliff boundaries" layer nahi mili.');
+      console.warn('[TilemapManager] "boundaries" layer nahi mili.');
       return staticGroup;
     }
 
@@ -56,21 +58,23 @@ export class TilemapManager {
       // Tiled mein x,y top-left corner hai
       // Agar width=0 (vertical line), thoda width de do taaki collision ho
       // Agar height=0 (horizontal line), thoda height de do
-      const finalW = Math.max(w, 4); // min 4px width for lines
-      const finalH = Math.max(h, 4); // min 4px height for lines
+      const finalW = Math.max(w, 2); // min 2px width for lines
+      const finalH = Math.max(h, 2); // min 2px height for lines
 
       // Phaser zone as static body — invisible collision zone
       const zone = scene.add.zone(
-        x + finalW / 2,  // Zone center X
-        y + finalH / 2,  // Zone center Y
+        x + finalW / 2, // Zone center X
+        y + finalH / 2, // Zone center Y
         finalW,
-        finalH
+        finalH,
       );
       scene.physics.add.existing(zone, true); // true = static body
       staticGroup.add(zone);
     }
 
-    console.log(`[TilemapManager] ${staticGroup.getLength()} cliff collision bodies created.`);
+    console.log(
+      `[TilemapManager] ${staticGroup.getLength()} cliff collision bodies created.`,
+    );
     return staticGroup;
   }
 
@@ -78,7 +82,8 @@ export class TilemapManager {
    * Tile-based collision layer return karo (optional, "Elevated Ground Cliff" pe).
    */
   public getCollisionLayer(): Phaser.Tilemaps.TilemapLayer | null {
-    const boundariesLayer = this.map.getLayer('boundaries')?.tilemapLayer ?? null;
+    const boundariesLayer =
+      this.map.getLayer("boundaries")?.tilemapLayer ?? null;
     return boundariesLayer;
   }
 
@@ -97,47 +102,61 @@ export class TilemapManager {
       enemies: [],
     };
 
-    const objectLayer = this.map.getObjectLayer('Objects');
+    const objectLayer = this.map.getObjectLayer("Objects");
     if (!objectLayer) {
-      console.warn('[TilemapManager] "Objects" layer nahi mili. Fallback spawn use hoga.');
+      console.warn(
+        '[TilemapManager] "Objects" layer nahi mili. Fallback spawn use hoga.',
+      );
       return result;
     }
 
     for (const obj of objectLayer.objects) {
       const x = obj.x ?? 0;
       const y = obj.y ?? 0;
-      const name = obj.name?.toLowerCase() ?? '';
-      const type = obj.type?.toLowerCase() ?? '';
+      const name = obj.name?.toLowerCase() ?? "";
+      const type = obj.type?.toLowerCase() ?? "";
 
-      if (name === 'player' || type === 'player') {
+      if (name === "player" || type === "player") {
         result.player = { x, y };
-      } else if (name.startsWith('enemy') || type === 'enemy') {
+      } else if (name.startsWith("enemy") || type === "enemy") {
         const enemyTypeProp = obj.properties?.find(
-          (p: { name: string; value: string }) => p.name === 'enemyType'
+          (p: { name: string; value: string }) => p.name === "enemyType",
         );
         result.enemies.push({
           x,
           y,
-          type: enemyTypeProp?.value ?? 'skeleton',
+          type: enemyTypeProp?.value ?? "skeleton",
         });
       }
     }
 
-    console.log(`[TilemapManager] Spawn: player=${result.player ? 'found' : 'fallback'}, enemies=${result.enemies.length}`);
+    console.log(
+      `[TilemapManager] Spawn: player=${result.player ? "found" : "fallback"}, enemies=${result.enemies.length}`,
+    );
     return result;
   }
 
-  public get widthInPixels(): number { return this.map.widthInPixels; }
-  public get heightInPixels(): number { return this.map.heightInPixels; }
+  public get widthInPixels(): number {
+    return this.map.widthInPixels;
+  }
+  public get heightInPixels(): number {
+    return this.map.heightInPixels;
+  }
 
-  public getWorldPosition(tileX: number, tileY: number): { x: number; y: number } {
+  public getWorldPosition(
+    tileX: number,
+    tileY: number,
+  ): { x: number; y: number } {
     return {
       x: tileX * this.map.tileWidth + this.map.tileWidth / 2,
       y: tileY * this.map.tileHeight + this.map.tileHeight / 2,
     };
   }
 
-  public getTilePosition(worldX: number, worldY: number): { x: number; y: number } {
+  public getTilePosition(
+    worldX: number,
+    worldY: number,
+  ): { x: number; y: number } {
     return {
       x: Math.floor(worldX / this.map.tileWidth),
       y: Math.floor(worldY / this.map.tileHeight),
@@ -166,66 +185,31 @@ export class TilemapManager {
       const tiledName = ts.name;
 
       // Skip broken/unnamed tilesets (external .tsj references that Phaser couldn't resolve)
-      if (!tiledName || tiledName === 'undefined') {
-        console.warn(`[TilemapManager] Skipping unnamed/external tileset (firstgid=${ts.firstgid})`);
+      if (!tiledName || tiledName === "undefined") {
+        console.warn(
+          `[TilemapManager] Skipping unnamed/external tileset (firstgid=${ts.firstgid})`,
+        );
         skipped++;
         continue;
       }
 
       // Tiled naam → Phaser cache key mapping
-      const phaserKey = this._tiledNameToKey(tiledName);
+      const phaserKey = tiledName;
 
       const result = this.map.addTilesetImage(tiledName, phaserKey);
       if (result) {
         attached++;
       } else {
-        console.warn(`[TilemapManager] ❌ addTilesetImage failed: "${tiledName}" → key "${phaserKey}"`);
+        console.warn(
+          `[TilemapManager] ❌ addTilesetImage failed: "${tiledName}" → key "${phaserKey}"`,
+        );
         skipped++;
       }
     }
 
-    console.log(`[TilemapManager] Tilesets: ${attached} attached, ${skipped} skipped.`);
-  }
-
-  /**
-   * Tiled tileset naam → Phaser cache key conversion.
-   *
-   * Mapping table based on TILESET_IMAGES entries in AssetKeys.ts.
-   * Agar naya tileset add karna ho toh:
-   *  1. TILESET_IMAGES mein entry add karo
-   *  2. Yahan mapping add karo
-   */
-  private _tiledNameToKey(name: string): string {
-    const manualMap: Record<string, string> = {
-      'Water Background color':   'tileset-water-background-color',
-      'Water background Color2':  'tileset-water-background-color-2',
-      'Water Foam1':              'tileset-water-foam-1',
-      'Water Foam2':              'tileset-water-foam-2',
-      'Tilemap_color1':           'tileset-tilemap-color-1',
-      'Tilemap_color2':           'tileset-tilemap-color-2',
-      'Tilemap_color3':           'tileset-tilemap-color-3',
-      'Tilemap_color4':           'tileset-tilemap-color-4',
-      'Tilemap_color5':           'tileset-tilemap-color-5',
-      'Tilemap_Elevation':        'tileset-tilemap-elevation',
-      'Tilemap_Flat':             'tileset-tilemap-flat',
-      'Tilemap_zindex':           'tileset-tilemap-zindex',
-      'Shadow':                   'tileset-shadow',
-      'Water_Rocks_01':           'tileset-water-rocks-01',
-      'Water_Rocks_02':           'tileset-water-rocks-02',
-      'Water_Rocks_03':           'tileset-water-rocks-03',
-      'Water_Rocks_04':           'tileset-water-rocks-04',
-      'Water_Rocks_05':           'tileset-water-rocks-05',
-      'Water_Rocks_06':           'tileset-water-rocks-06',
-      'Water_Rocks_07':           'tileset-water-rocks-07',
-      'Water_Rocks_08':           'tileset-water-rocks-08',
-      'Bridge_All':               'tileset-bridge',
-      'Tree':                     'tileset-tree',
-      'Tree1':                    'tileset-tree1',
-      'Tree2':                    'tileset-tree2',
-      'Tree3':                    'tileset-tree3',
-      'Tree4':                    'tileset-tree4',
-    };
-    return manualMap[name] ?? `tileset-${name.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-')}`;
+    console.log(
+      `[TilemapManager] Tilesets: ${attached} attached, ${skipped} skipped.`,
+    );
   }
 
   /**
@@ -236,13 +220,15 @@ export class TilemapManager {
     // Successfully attached tilesets ka array
     const tilesets: Phaser.Tilemaps.Tileset[] = [];
     for (const ts of this.map.tilesets) {
-      if (!ts.name || ts.name === 'undefined') continue;
+      if (!ts.name || ts.name === "undefined") continue;
       const found = this.map.getTileset(ts.name);
       if (found) tilesets.push(found);
     }
 
     if (tilesets.length === 0) {
-      console.error('[TilemapManager] No valid tilesets! Map render nahi hoga.');
+      console.error(
+        "[TilemapManager] No valid tilesets! Map render nahi hoga.",
+      );
       return;
     }
 
@@ -262,6 +248,6 @@ export class TilemapManager {
   }
 
   public getCollisionObjectLayer(): Phaser.Tilemaps.ObjectLayer | null {
-    return this.map.getObjectLayer('boundaries');
+    return this.map.getObjectLayer("boundaries");
   }
 }
