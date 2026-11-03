@@ -289,6 +289,15 @@ export const TILESET_IMAGES: TilesetImageEntry[] = [
   { key: "Tree2",   path: "assets/tilesets/structures/Tree2.png" },
   { key: "Tree3",   path: "assets/tilesets/structures/Tree3.png" },
   { key: "Tree4",   path: "assets/tilesets/structures/Tree4.png" },
+
+    // ─── UI Elements ───
+    { key: "Banner",  path: "assets/UI Elements/Banners/Banner.png" },
+    { key: "Carved_9Slides",  path: "assets/UI Elements/Banners/Carved_9Slides.png" },
+    { key: "Ribbon_Blue_3Slides",  path: "assets/UI Elements/Ribbons/Ribbon_Blue_3Slides.png" },
+    { key: "Button_Blue_3Slides",  path: "assets/UI Elements/Buttons/Button_Blue_3Slides.png" },
+    { key: "Button_Blue_3Slides_Pressed",  path: "assets/UI Elements/Buttons/Button_Blue_3Slides_Pressed.png" },
+    { key: "Button_Disable_3Slides",  path: "assets/UI Elements/Buttons/Button_Disable_3Slides.png" },
+    { key: "Button_Hover_3Slides",  path: "assets/UI Elements/Buttons/Button_Hover_3Slides.png" },
 ];
 
 // =============================================
