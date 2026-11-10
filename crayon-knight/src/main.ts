@@ -1,21 +1,28 @@
-import Phaser from 'phaser';
-import { GameConfig } from '@/config/GameConfig';
-import { BootScene } from '@/scenes/BootScene';
-import { PreloadScene } from '@/scenes/PreloadScene';
-import { MainMenuScene } from '@/scenes/MainMenuScene';
-import { GameScene } from '@/scenes/GameScene';
-import { UIScene } from '@/scenes/UIScene';
-import { GameOverScene } from '@/scenes/GameOverScene';
+import Phaser from "phaser";
+import { GameConfig } from "@/config/GameConfig";
+import { BootScene } from "@/scenes/BootScene";
+import { PreloadScene } from "@/scenes/PreloadScene";
+import { MainMenuScene } from "@/scenes/MainMenuScene";
+import { GameScene } from "@/scenes/GameScene";
+import { UIScene } from "@/scenes/UIScene";
+import { GameOverScene } from "@/scenes/GameOverScene";
 
 // Scene list register karo (order matters for first scene)
 const config: Phaser.Types.Core.GameConfig = {
   ...GameConfig,
-  scene: [BootScene, PreloadScene, MainMenuScene, GameScene, UIScene, GameOverScene],
+  scene: [
+    BootScene,
+    PreloadScene,
+    MainMenuScene,
+    GameScene,
+    UIScene,
+    GameOverScene,
+  ],
 };
 
 await Promise.all([
   document.fonts.load('16px "Press Start 2P"'),
-  document.fonts.load('16px "Rubik"')
+  document.fonts.load('16px "Rubik"'),
 ]);
 
 // Game start! 🎮

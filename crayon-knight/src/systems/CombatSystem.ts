@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from "phaser";
 
 /**
  * Static utility class for combat calculations.
@@ -12,7 +12,10 @@ export class CombatSystem {
    * @param defense The defense stat of the defender.
    * @returns Calculated final damage, minimum 1.
    */
-  public static calculateDamage(baseDamage: number, defense: number = 0): number {
+  public static calculateDamage(
+    baseDamage: number,
+    defense: number = 0,
+  ): number {
     return Math.max(1, baseDamage - defense);
   }
 
@@ -23,10 +26,13 @@ export class CombatSystem {
    * @returns Normalized Phaser Vector2 pointing away from the source.
    */
   public static getKnockbackDirection(
-    source: { x: number, y: number }, 
-    target: { x: number, y: number }
+    source: { x: number; y: number },
+    target: { x: number; y: number },
   ): Phaser.Math.Vector2 {
-    const dir = new Phaser.Math.Vector2(target.x - source.x, target.y - source.y);
+    const dir = new Phaser.Math.Vector2(
+      target.x - source.x,
+      target.y - source.y,
+    );
     return dir.normalize();
   }
 
@@ -38,11 +44,11 @@ export class CombatSystem {
    * @returns Boolean indicating if they are within range.
    */
   public static isInRange(
-    a: { x: number, y: number }, 
-    b: { x: number, y: number }, 
-    range: number
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    range: number,
   ): boolean {
     const distSq = Phaser.Math.Distance.Squared(a.x, a.y, b.x, b.y);
-    return distSq <= (range * range);
+    return distSq <= range * range;
   }
 }

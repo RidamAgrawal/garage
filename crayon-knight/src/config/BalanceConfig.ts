@@ -5,7 +5,7 @@
  */
 
 export const PLAYER_CONFIG = {
-  maxHp: 6,           // 3 hearts × 2 HP each
+  maxHp: 6, // 3 hearts × 2 HP each
   speed: 160,
   attackPower: 2,
   attackCooldownMs: 400,
@@ -24,19 +24,19 @@ export const ENEMY_CONFIGS = {
     detectionRange: 150,
     knockbackForce: 150,
     goldDrop: { min: 1, max: 3 },
-    animPrefix: 'skull',    // FSM animation keys: gnome-idle, gnome-walk, gnome-attack
-    scale: 0.5,             // 192px sprite → ~96px in-game
+    animPrefix: "skull", // FSM animation keys: gnome-idle, gnome-walk, gnome-attack
+    scale: 0.5, // 192px sprite → ~96px in-game
   },
   slime: {
     maxHp: 2,
     speed: 50,
     attackPower: 1,
-    attackCooldownMs: 0,    // damages on contact
+    attackCooldownMs: 0, // damages on contact
     attackRange: 0,
     detectionRange: 100,
     knockbackForce: 100,
     goldDrop: { min: 0, max: 2 },
-    animPrefix: 'spider',   // FSM animation keys: spider-idle, spider-run, spider-attack
+    animPrefix: "spider", // FSM animation keys: spider-idle, spider-run, spider-attack
     scale: 0.5,
   },
   goblin: {
@@ -48,8 +48,8 @@ export const ENEMY_CONFIGS = {
     detectionRange: 180,
     knockbackForce: 130,
     goldDrop: { min: 2, max: 5 },
-    animPrefix: 'troll',    // FSM animation keys: troll-idle, troll-walk, troll-attack
-    scale: 0.35,            // 384px sprite → ~134px in-game (BOSS size)
+    animPrefix: "troll", // FSM animation keys: troll-idle, troll-walk, troll-attack
+    scale: 0.35, // 384px sprite → ~134px in-game (BOSS size)
   },
 };
 

@@ -1,7 +1,7 @@
-import Phaser from 'phaser';
-import { SceneKeys } from '@/constants/SceneKeys';
-import { HealthBar } from '@/ui/HealthBar';
-import { GoldCounter } from '@/ui/GoldCounter';
+import Phaser from "phaser";
+import { SceneKeys } from "@/constants/SceneKeys";
+import { HealthBar } from "@/ui/HealthBar";
+import { GoldCounter } from "@/ui/GoldCounter";
 
 /**
  * UI Scene
@@ -25,7 +25,7 @@ export class UIScene extends Phaser.Scene {
     // Yeh fixed position pe rahega — HUD style
     this.cameras.main.setScroll(0, 0);
 
-    this.events.once('shutdown', this.shutdown, this);
+    this.events.once("shutdown", this.shutdown, this);
   }
 
   shutdown() {

@@ -10,7 +10,7 @@ export enum Direction {
   UP,
   DOWN,
   LEFT,
-  RIGHT
+  RIGHT,
 }
 
 /**
@@ -37,7 +37,7 @@ export interface RoomConfig {
   y: number;
   width: number;
   height: number;
-  type: 'normal' | 'start' | 'boss' | 'treasure';
+  type: "normal" | "start" | "boss" | "treasure";
   enemySpawns: { x: number; y: number; type: string }[];
 }
 

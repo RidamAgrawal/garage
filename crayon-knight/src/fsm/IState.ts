@@ -1,6 +1,6 @@
 /**
  * IState Interface — State Machine ka har state yeh follow karega
- * 
+ *
  * State Machine pattern: Complex behavior ko states mein tod do
  * Jaise player ke states: Idle → Run → Attack → Hurt → Dead
  * Har state mein alag logic hota hai

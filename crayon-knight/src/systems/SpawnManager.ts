@@ -1,10 +1,10 @@
-import Phaser from 'phaser';
-import { Player } from '@/entities/player/Player';
-import { Enemy } from '@/entities/enemies/Enemy';
-import { Skeleton } from '@/entities/enemies/Skeleton';
-import { Slime } from '@/entities/enemies/Slime';
-import { AssetKeys } from '@/constants/AssetKeys';
-import { ENEMY_CONFIGS } from '@/config/BalanceConfig';
+import Phaser from "phaser";
+import { Player } from "@/entities/player/Player";
+import { Enemy } from "@/entities/enemies/Enemy";
+import { Skeleton } from "@/entities/enemies/Skeleton";
+import { Slime } from "@/entities/enemies/Slime";
+import { AssetKeys } from "@/constants/AssetKeys";
+import { ENEMY_CONFIGS } from "@/config/BalanceConfig";
 
 /**
  * SpawnManager — Factory Pattern ka example
@@ -23,7 +23,11 @@ export class SpawnManager {
   private enemyGroup: Phaser.Physics.Arcade.Group;
   private player: Player;
 
-  constructor(scene: Phaser.Scene, enemyGroup: Phaser.Physics.Arcade.Group, player: Player) {
+  constructor(
+    scene: Phaser.Scene,
+    enemyGroup: Phaser.Physics.Arcade.Group,
+    player: Player,
+  ) {
     this.scene = scene;
     this.enemyGroup = enemyGroup;
     this.player = player;
@@ -35,33 +39,41 @@ export class SpawnManager {
    *
    * Factory switch: type string → sahi Enemy subclass
    */
-  public spawnEnemyAt(x: number, y: number, type: string = 'skeleton'): Enemy | null {
+  public spawnEnemyAt(
+    x: number,
+    y: number,
+    type: string = "skeleton",
+  ): Enemy | null {
     let enemy: Enemy | null = null;
 
     switch (type.toLowerCase()) {
-      case 'skeleton':
+      case "skeleton":
         // Skull sprite se Skeleton represent hota hai
         enemy = new Skeleton(this.scene, x, y);
         break;
 
-      case 'slime':
+      case "slime":
         // Spider sprite se Slime represent hota hai
         enemy = new Slime(this.scene, x, y);
         break;
 
-      case 'goblin':
-      case 'boss':
+      case "goblin":
+      case "boss":
         // Troll sprite — bada aur powerful enemy
         enemy = new Enemy(
-          this.scene, x, y,
+          this.scene,
+          x,
+          y,
           AssetKeys.TROLL_IDLE,
-          ENEMY_CONFIGS.goblin
+          ENEMY_CONFIGS.goblin,
         );
-        enemy.enemyType = type === 'boss' ? 'boss' : 'goblin';
+        enemy.enemyType = type === "boss" ? "boss" : "goblin";
         break;
 
       default:
-        console.warn(`[SpawnManager] Unknown enemy type: "${type}" — skeleton use kar raha hoon`);
+        console.warn(
+          `[SpawnManager] Unknown enemy type: "${type}" — skeleton use kar raha hoon`,
+        );
         enemy = new Skeleton(this.scene, x, y);
     }
 
@@ -80,17 +92,19 @@ export class SpawnManager {
    */
   public spawnFallbackEnemies(mapWidth: number, mapHeight: number): void {
     const positions = [
-      { x: mapWidth * 0.25, y: mapHeight * 0.25, type: 'skeleton' },
-      { x: mapWidth * 0.75, y: mapHeight * 0.25, type: 'slime'    },
-      { x: mapWidth * 0.25, y: mapHeight * 0.75, type: 'skeleton' },
-      { x: mapWidth * 0.75, y: mapHeight * 0.75, type: 'goblin'   },
-      { x: mapWidth * 0.5,  y: mapHeight * 0.4,  type: 'slime'    },
+      { x: mapWidth * 0.25, y: mapHeight * 0.25, type: "skeleton" },
+      { x: mapWidth * 0.75, y: mapHeight * 0.25, type: "slime" },
+      { x: mapWidth * 0.25, y: mapHeight * 0.75, type: "skeleton" },
+      { x: mapWidth * 0.75, y: mapHeight * 0.75, type: "goblin" },
+      { x: mapWidth * 0.5, y: mapHeight * 0.4, type: "slime" },
     ];
 
     for (const pos of positions) {
       this.spawnEnemyAt(pos.x, pos.y, pos.type);
     }
 
-    console.log('[SpawnManager] Fallback enemies spawned (Tiled Objects layer nahi mili)');
+    console.log(
+      "[SpawnManager] Fallback enemies spawned (Tiled Objects layer nahi mili)",
+    );
   }
 }

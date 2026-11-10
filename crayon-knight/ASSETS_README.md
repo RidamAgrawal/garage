@@ -7,10 +7,12 @@
 
 The game will run with **placeholder colored shapes** even without sprite assets.
 Just run:
+
 ```bash
 npm install
 npm run dev
 ```
+
 The PreloadScene automatically generates colored rectangle/circle textures as fallbacks.
 
 ---

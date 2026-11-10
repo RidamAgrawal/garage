@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from "phaser";
 
 /**
  * Static utility for rendering floating text in the game world.
@@ -15,20 +15,20 @@ export class FloatingText {
    * @param color The hex color code or string for the text (default: '#ffffff').
    */
   public static show(
-    scene: Phaser.Scene, 
-    x: number, 
-    y: number, 
-    text: string, 
-    color: string = '#ffffff'
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    text: string,
+    color: string = "#ffffff",
   ): void {
     // Create Phaser.GameObjects.Text at position
     const textObj = scene.add.text(x, y, text, {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      fontStyle: 'bold',
+      fontSize: "16px",
+      fontFamily: "Arial",
+      fontStyle: "bold",
       color: color,
-      stroke: '#000000',
-      strokeThickness: 3
+      stroke: "#000000",
+      strokeThickness: 3,
     });
 
     // Center origin to anchor properly
@@ -40,11 +40,11 @@ export class FloatingText {
       y: y - 30,
       alpha: 0,
       duration: 800,
-      ease: 'Power2',
+      ease: "Power2",
       onComplete: () => {
         // Destroy text upon completion to free memory
         textObj.destroy();
-      }
+      },
     });
   }
 }

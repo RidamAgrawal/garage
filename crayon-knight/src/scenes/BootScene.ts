@@ -1,5 +1,5 @@
-import Phaser from 'phaser';
-import { SceneKeys } from '@/constants/SceneKeys';
+import Phaser from "phaser";
+import { SceneKeys } from "@/constants/SceneKeys";
 
 /**
  * Boot Scene
@@ -12,10 +12,12 @@ export class BootScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
-    this.add.text(width / 2, height / 2, 'Loading...', {
-      fontSize: '24px',
-      color: '#ffffff'
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, height / 2, "Loading...", {
+        fontSize: "24px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5);
 
     // Chhote setup ke baad turant Preload scene pe transition
     this.scene.start(SceneKeys.PRELOAD);

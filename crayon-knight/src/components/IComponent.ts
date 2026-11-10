@@ -1,7 +1,7 @@
 /**
  * IComponent Interface — Har component ko yeh contract follow karna padega
  * (This is the 'Interface' OOP concept — defines a contract)
- * 
+ *
  * Composition pattern: Instead of deep inheritance chains,
  * we attach small reusable components to entities
  */

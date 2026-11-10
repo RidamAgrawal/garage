@@ -12,18 +12,18 @@ export enum AssetKeys {
   // === Warrior Sprite Keys (used as spritesheet texture keys in Phaser cache) ===
   WARRIOR_IDLE = "warrior-idle",
   WARRIOR_RUN = "warrior-run",
-  WARRIOR_ATTACK = "warrior-attack",   // FSM ke liye standardized key
+  WARRIOR_ATTACK = "warrior-attack", // FSM ke liye standardized key
   WARRIOR_ATTACK2 = "warrior-attack2",
   WARRIOR_GUARD = "warrior-guard",
 
   // === Gnome Sprite Keys ===
   GNOME_IDLE = "gnome-idle",
-  GNOME_RUN = "gnome-run",             // File hai Gnome_Walk par FSM "run" expect karta hai
+  GNOME_RUN = "gnome-run", // File hai Gnome_Walk par FSM "run" expect karta hai
   GNOME_ATTACK = "gnome-attack",
 
   // === Skull Sprite Keys ===
   SKULL_IDLE = "skull-idle",
-  SKULL_RUN = "skull-run",             // File hai Skull_Walk par FSM "run" expect karta hai
+  SKULL_RUN = "skull-run", // File hai Skull_Walk par FSM "run" expect karta hai
   SKULL_ATTACK = "skull-attack",
 
   // === Spider Sprite Keys ===
@@ -33,7 +33,7 @@ export enum AssetKeys {
 
   // === Troll Sprite Keys ===
   TROLL_IDLE = "troll-idle",
-  TROLL_RUN = "troll-run",             // File hai Troll_Walk par FSM "run" expect karta hai
+  TROLL_RUN = "troll-run", // File hai Troll_Walk par FSM "run" expect karta hai
   TROLL_ATTACK = "troll-attack",
 
   // Tilesets
@@ -105,10 +105,10 @@ export const AnimationAssets: Record<
     path: "assets/characters/Player/Warrior/Warrior_Attack1.png",
     frameWidth: 192,
     frameHeight: 192,
-    frameRate: 12,     // Attack fast feel kare
+    frameRate: 12, // Attack fast feel kare
     start: 0,
     end: 3,
-    repeat: 0,         // Attack sirf ek baar chale, phir idle mein jaaye
+    repeat: 0, // Attack sirf ek baar chale, phir idle mein jaaye
   },
   [AssetKeys.WARRIOR_ATTACK2]: {
     path: "assets/characters/Player/Warrior/Warrior_Attack2.png",
@@ -140,7 +140,7 @@ export const AnimationAssets: Record<
     repeat: -1,
   },
   [AssetKeys.SKULL_RUN]: {
-    path: "assets/characters/Enemies/Skull/Skull_Run.png",  // File naam Run hai, key bhi "run"
+    path: "assets/characters/Enemies/Skull/Skull_Run.png", // File naam Run hai, key bhi "run"
     frameWidth: 192,
     frameHeight: 192,
     frameRate: 8,
@@ -168,7 +168,7 @@ export const AnimationAssets: Record<
     repeat: -1,
   },
   [AssetKeys.GNOME_RUN]: {
-    path: "assets/characters/Enemies/Gnome/Gnome_Run.png",  // File naam Run hai, key bhi "run"
+    path: "assets/characters/Enemies/Gnome/Gnome_Run.png", // File naam Run hai, key bhi "run"
     frameWidth: 192,
     frameHeight: 192,
     frameRate: 8,
@@ -226,7 +226,7 @@ export const AnimationAssets: Record<
     repeat: -1,
   },
   [AssetKeys.TROLL_RUN]: {
-    path: "assets/characters/Enemies/Troll/Troll_Walk.png",  // Walk file par "run" key
+    path: "assets/characters/Enemies/Troll/Troll_Walk.png", // Walk file par "run" key
     frameWidth: 384,
     frameHeight: 384,
     frameRate: 8,
@@ -252,60 +252,84 @@ export const AnimationAssets: Record<
 // Har entry ka key Tiled editor mein tileset ka naam match karna chahiye
 
 export interface TilesetImageEntry {
-  key: string;          // Phaser cache key (Tiled tileset naam match karna chahiye)
-  path: string;         // public/ folder ke relative path
+  key: string; // Phaser cache key (Tiled tileset naam match karna chahiye)
+  path: string; // public/ folder ke relative path
 }
 
 export const TILESET_IMAGES: TilesetImageEntry[] = [
   // ─── Terrain / Ground Tilesets ───
-  { key: "Shadow",               path: "assets/tilesets/Shadow.png" },
-  { key: "Tilemap_color1",      path: "assets/tilesets/Tilemap_color1.png" },
-  { key: "Tilemap_color2",      path: "assets/tilesets/Tilemap_color2.png" },
-  { key: "Tilemap_color3",      path: "assets/tilesets/Tilemap_color3.png" },
-  { key: "Tilemap_color4",      path: "assets/tilesets/Tilemap_color4.png" },
-  { key: "Tilemap_color5",      path: "assets/tilesets/Tilemap_color5.png" },
-  { key: "Tilemap_Elevation",    path: "assets/tilesets/Tilemap_Elevation.png" },
-  { key: "Tilemap_Flat",         path: "assets/tilesets/Tilemap_Flat.png" },
-  { key: "Tilemap_zindex",       path: "assets/tilesets/Tilemap_zindex.png" },
+  { key: "Shadow", path: "assets/tilesets/Shadow.png" },
+  { key: "Tilemap_color1", path: "assets/tilesets/Tilemap_color1.png" },
+  { key: "Tilemap_color2", path: "assets/tilesets/Tilemap_color2.png" },
+  { key: "Tilemap_color3", path: "assets/tilesets/Tilemap_color3.png" },
+  { key: "Tilemap_color4", path: "assets/tilesets/Tilemap_color4.png" },
+  { key: "Tilemap_color5", path: "assets/tilesets/Tilemap_color5.png" },
+  { key: "Tilemap_Elevation", path: "assets/tilesets/Tilemap_Elevation.png" },
+  { key: "Tilemap_Flat", path: "assets/tilesets/Tilemap_Flat.png" },
+  { key: "Tilemap_zindex", path: "assets/tilesets/Tilemap_zindex.png" },
 
   // ─── Water Tilesets ───
-  { key: "Water Background color",   path: "assets/tilesets/Water Background color.png" },
-  { key: "Water Background color2", path: "assets/tilesets/Water Background color2.png" },
-  { key: "Water Foam1",             path: "assets/tilesets/Water Foam1.png" },
-  { key: "Water Foam2",             path: "assets/tilesets/Water Foam2.png" },
-  { key: "Water_Rocks_01",           path: "assets/tilesets/Water_Rocks_01.png" },
-  { key: "Water_Rocks_02",           path: "assets/tilesets/Water_Rocks_02.png" },
-  { key: "Water_Rocks_03",           path: "assets/tilesets/Water_Rocks_03.png" },
-  { key: "Water_Rocks_04",           path: "assets/tilesets/Water_Rocks_04.png" },
-  { key: "Water_Rocks_05",           path: "assets/tilesets/Water_Rocks_05.png" },
-  { key: "Water_Rocks_06",           path: "assets/tilesets/Water_Rocks_06.png" },
-  { key: "Water_Rocks_07",           path: "assets/tilesets/Water_Rocks_07.png" },
-  { key: "Water_Rocks_08",           path: "assets/tilesets/Water_Rocks_08.png" },
+  {
+    key: "Water Background color",
+    path: "assets/tilesets/Water Background color.png",
+  },
+  {
+    key: "Water Background color2",
+    path: "assets/tilesets/Water Background color2.png",
+  },
+  { key: "Water Foam1", path: "assets/tilesets/Water Foam1.png" },
+  { key: "Water Foam2", path: "assets/tilesets/Water Foam2.png" },
+  { key: "Water_Rocks_01", path: "assets/tilesets/Water_Rocks_01.png" },
+  { key: "Water_Rocks_02", path: "assets/tilesets/Water_Rocks_02.png" },
+  { key: "Water_Rocks_03", path: "assets/tilesets/Water_Rocks_03.png" },
+  { key: "Water_Rocks_04", path: "assets/tilesets/Water_Rocks_04.png" },
+  { key: "Water_Rocks_05", path: "assets/tilesets/Water_Rocks_05.png" },
+  { key: "Water_Rocks_06", path: "assets/tilesets/Water_Rocks_06.png" },
+  { key: "Water_Rocks_07", path: "assets/tilesets/Water_Rocks_07.png" },
+  { key: "Water_Rocks_08", path: "assets/tilesets/Water_Rocks_08.png" },
 
   // ─── Structure Tilesets ───
-  { key: "Bridge_All",  path: "assets/tilesets/structures/Bridge_All.png" },
-  { key: "Tree",    path: "assets/tilesets/structures/Tree.png" },
-  { key: "Tree1",   path: "assets/tilesets/structures/Tree1.png" },
-  { key: "Tree2",   path: "assets/tilesets/structures/Tree2.png" },
-  { key: "Tree3",   path: "assets/tilesets/structures/Tree3.png" },
-  { key: "Tree4",   path: "assets/tilesets/structures/Tree4.png" },
+  { key: "Bridge_All", path: "assets/tilesets/structures/Bridge_All.png" },
+  { key: "Tree", path: "assets/tilesets/structures/Tree.png" },
+  { key: "Tree1", path: "assets/tilesets/structures/Tree1.png" },
+  { key: "Tree2", path: "assets/tilesets/structures/Tree2.png" },
+  { key: "Tree3", path: "assets/tilesets/structures/Tree3.png" },
+  { key: "Tree4", path: "assets/tilesets/structures/Tree4.png" },
 
-    // ─── UI Elements ───
-    { key: "Banner",  path: "assets/UI Elements/Banners/Banner.png" },
-    { key: "Carved_9Slides",  path: "assets/UI Elements/Banners/Carved_9Slides.png" },
-    { key: "Ribbon_Blue_3Slides",  path: "assets/UI Elements/Ribbons/Ribbon_Blue_3Slides.png" },
-    { key: "Button_Blue_3Slides",  path: "assets/UI Elements/Buttons/Button_Blue_3Slides.png" },
-    { key: "Button_Blue_3Slides_Pressed",  path: "assets/UI Elements/Buttons/Button_Blue_3Slides_Pressed.png" },
-    { key: "Button_Disable_3Slides",  path: "assets/UI Elements/Buttons/Button_Disable_3Slides.png" },
-    { key: "Button_Hover_3Slides",  path: "assets/UI Elements/Buttons/Button_Hover_3Slides.png" },
+  // ─── UI Elements ───
+  { key: "Banner", path: "assets/UI Elements/Banners/Banner.png" },
+  {
+    key: "Carved_9Slides",
+    path: "assets/UI Elements/Banners/Carved_9Slides.png",
+  },
+  {
+    key: "Ribbon_Blue_3Slides",
+    path: "assets/UI Elements/Ribbons/Ribbon_Blue_3Slides.png",
+  },
+  {
+    key: "Button_Blue_3Slides",
+    path: "assets/UI Elements/Buttons/Button_Blue_3Slides.png",
+  },
+  {
+    key: "Button_Blue_3Slides_Pressed",
+    path: "assets/UI Elements/Buttons/Button_Blue_3Slides_Pressed.png",
+  },
+  {
+    key: "Button_Disable_3Slides",
+    path: "assets/UI Elements/Buttons/Button_Disable_3Slides.png",
+  },
+  {
+    key: "Button_Hover_3Slides",
+    path: "assets/UI Elements/Buttons/Button_Hover_3Slides.png",
+  },
 ];
 
 // =============================================
 // 🗺️ Tilemap JSON Registry
 // =============================================
 export interface TilemapEntry {
-  key: string;          // Phaser cache key (this.make.tilemap({ key }) mein use hoga)
-  path: string;         // public/ ke relative path
+  key: string; // Phaser cache key (this.make.tilemap({ key }) mein use hoga)
+  path: string; // public/ ke relative path
 }
 
 export const TILEMAPS: TilemapEntry[] = [
