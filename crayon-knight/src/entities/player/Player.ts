@@ -75,6 +75,7 @@ export class Player extends Entity {
         this.fsm.addState('idle', new IdleState(this));
         this.fsm.addState('run', new RunState(this));
         this.fsm.addState('attack', new AttackState(this));
+        this.fsm.addState('attack2', new AttackState(this));
         this.fsm.addState('hurt', new HurtState(this));
         this.fsm.transition('idle');
     }

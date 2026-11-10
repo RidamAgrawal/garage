@@ -311,3 +311,5 @@ export interface TilemapEntry {
 export const TILEMAPS: TilemapEntry[] = [
   { key: "map", path: "map/firstMap.json" },
 ];
+
+export const BANNER_FRAMES = 64;

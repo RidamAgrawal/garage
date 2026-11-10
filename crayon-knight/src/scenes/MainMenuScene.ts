@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
+import { BANNER_FRAMES } from "@/constants/AssetKeys";
 
 /**
  * Main Menu Scene
@@ -92,7 +93,9 @@ export class MainMenuScene extends Phaser.Scene {
       menuItemText.setY(textY).setColor(color);
     };
 
-    menuItem.on("pointerover", () => look("Button_Hover_3Slides", -4, "#ffe08a"));
+    menuItem.on("pointerover", () =>
+      look("Button_Hover_3Slides", -4, "#ffe08a"),
+    );
     menuItem.on("pointerout", () => look("Button_Blue_3Slides", -4, "#ffffff"));
     menuItem.on("pointerdown", () =>
       look("Button_Blue_3Slides_Pressed", 0, "#ffffff"),
@@ -198,9 +201,10 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   private bannerPanel(cx: number, cy: number, w: number, h: number): void {
-    const key = "Banner";
-    const tex = this.textures.get(key);
-    // [first cell, cell count] per band: start/end bands are 2 cells (128px), middle is 1 (64px)
+    const keys = Array.from(
+      { length: BANNER_FRAMES },
+      (_, i) => `banner_${String(i + 1).padStart(2, "0")}`,
+    );
     const bands = [
       [0, 2],
       [3, 1],
@@ -210,29 +214,45 @@ export class MainMenuScene extends Phaser.Scene {
       ws = [128, w - 256, 128];
     const ys = [0, 128, h - 128],
       hs = [128, h - 256, 128];
+    const cells: { sprite: Phaser.GameObjects.TileSprite; f: string }[] = [];
+
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
         const f = `b${r}${c}`;
-        if (!tex.has(f))
-          tex.add(
-            f,
-            0,
-            bands[c][0] * 64,
-            bands[r][0] * 64,
-            bands[c][1] * 64,
-            bands[r][1] * 64,
-          );
-        this.add
+        for (const k of keys) {
+          const tex = this.textures.get(k);
+          if (!tex.has(f))
+            tex.add(
+              f,
+              0,
+              bands[c][0] * 64,
+              bands[r][0] * 64,
+              bands[c][1] * 64,
+              bands[r][1] * 64,
+            );
+        }
+        const sprite = this.add
           .tileSprite(
             cx - w / 2 + xs[c],
             cy - h / 2 + ys[r],
             ws[c],
             hs[r],
-            key,
+            keys[0],
             f,
           )
           .setOrigin(0);
+        cells.push({ sprite, f });
       }
     }
+
+    let i = 0;
+    this.time.addEvent({
+      delay: 100, // ~10 fps, tune to taste
+      loop: true,
+      callback: () => {
+        i = (i + 1) % keys.length;
+        cells.forEach(({ sprite, f }) => sprite.setTexture(keys[i], f));
+      },
+    });
   }
 }

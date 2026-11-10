@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
-import { AnimationAssets, AssetKeys, TILESET_IMAGES, TILEMAPS } from "@/constants/AssetKeys";
+import { AnimationAssets, AssetKeys, TILESET_IMAGES, TILEMAPS, BANNER_FRAMES } from "@/constants/AssetKeys";
 import { registerAllAnimations } from "@/config/AnimationConfig";
 
 /**
@@ -175,6 +175,10 @@ export class PreloadScene extends Phaser.Scene {
   private loadTileSetImages(): void {
     for (const tileset of TILESET_IMAGES) {
       this.load.image(tileset.key, tileset.path);
+    }
+    for (let i = 1; i <= BANNER_FRAMES; i++) {
+      const n = String(i).padStart(2, "0");
+      this.load.image(`banner_${n}`, `assets/UI Elements/Banners/output/composite_${n}.png`);
     }
   }
 
