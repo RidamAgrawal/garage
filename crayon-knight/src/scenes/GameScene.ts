@@ -2,19 +2,12 @@ import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
 import { EventKeys } from "@/constants/EventKeys";
 import { EventBus } from "@/events/EventBus";
-import { TilemapManager } from "@/dungeon";
+import { TilemapManager, IslandGenerator } from "@/dungeon";
 import { SpawnManager } from "@/systems/SpawnManager";
 import { Player } from "@/entities/player/Player";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
- *
- * Hindi: Yeh sabse important scene hai. Yahan sab kuch combine hota hai:
- * - Tiled JSON map load aur render
- * - Player aur Enemy spawning (Tiled Objects layer se)
- * - Physics colliders setup
- * - Camera setup
- * - EventBus se UI updates
  *
  * Single Responsibility: GameScene sirf orchestration karta hai.
  * Actual logic Entity classes, Components, aur Systems mein hai.
@@ -22,30 +15,47 @@ import { Player } from "@/entities/player/Player";
 export class GameScene extends Phaser.Scene {
   private player!: Player;
   private enemyGroup!: Phaser.Physics.Arcade.Group;
-  private tilemapManager!: TilemapManager;
+  private tilemapManager?: TilemapManager;
   private spawnManager!: SpawnManager;
   private boundaries!: Phaser.Physics.Arcade.StaticGroup;
   private gold: number = 0;
+  private mapType: "procedural" | "tiled" = "procedural";
 
   constructor() {
     super({ key: SceneKeys.GAME });
+  }
+
+  init(data?: { mapType?: "procedural" | "tiled" }) {
+    if (data?.mapType) {
+      this.mapType = data.mapType;
+    }
   }
 
   create() {
     this.gold = 0;
 
     // ============================================================
-    // Step 1: Tiled Map Load aur Render Karo
+    // Step 1: Map Setup (Procedural Island by default, or Tiled JSON)
     // ============================================================
-    this.tilemapManager = new TilemapManager();
-    const map = this.tilemapManager.createTilemap(this);
+    let map: Phaser.Tilemaps.Tilemap;
+    let spawnPoints: {
+      player: { x: number; y: number } | null;
+      enemies: { x: number; y: number; type: string }[];
+    };
 
-    // ============================================================
-    // Step 2: Collision Layer Setup
-    // createCliffColliders() "cliff boundaries" objectgroup se
-    // rectangles/lines ko static physics bodies bana deta hai.
-    // ============================================================
-    this.boundaries = this.tilemapManager.createCliffColliders(this);
+    if (this.mapType === "tiled") {
+      this.tilemapManager = new TilemapManager();
+      map = this.tilemapManager.createTilemap(this);
+      this.boundaries = this.tilemapManager.createCliffColliders(this);
+      spawnPoints = this.tilemapManager.getSpawnPoints();
+    } else {
+      const islandGen = new IslandGenerator();
+      const result = islandGen.generate(this);
+      map = result.map;
+      this.boundaries = result.boundaries;
+      spawnPoints = result.spawnPoints;
+    }
+
     // Physics world bounds = map size
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
@@ -55,13 +65,9 @@ export class GameScene extends Phaser.Scene {
     this.enemyGroup = this.physics.add.group();
 
     // ============================================================
-    // Step 4: Spawn points nikalo (Tiled Objects layer se)
-    // Agar Objects layer nahi hai toh map ke center pe spawn karo
+    // Step 4: Spawn points
+    // Player spawn position: spawnPoints se ya map center
     // ============================================================
-    const spawnPoints = this.tilemapManager.getSpawnPoints();
-
-    // Player spawn position — Objects layer mein "player" object dhundho
-    // Fallback: map center
     const playerSpawn = spawnPoints.player ?? {
       x: map.widthInPixels / 2,
       y: map.heightInPixels / 2,
