@@ -9,6 +9,8 @@ export class PlayerController {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd: any;
   private attackKey: Phaser.Input.Keyboard.Key;
+  private defenseKey: Phaser.Input.Keyboard.Key;
+  private defenseKeyL: Phaser.Input.Keyboard.Key;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -27,6 +29,12 @@ export class PlayerController {
 
     this.attackKey = this.scene.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE,
+    );
+    this.defenseKey = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SHIFT,
+    );
+    this.defenseKeyL = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.L,
     );
   }
 
@@ -60,10 +68,28 @@ export class PlayerController {
   }
 
   /**
+   * Check if defense was just pressed
+   */
+  isDefensePressed(): boolean {
+    return (
+      Phaser.Input.Keyboard.JustDown(this.defenseKey) ||
+      Phaser.Input.Keyboard.JustDown(this.defenseKeyL)
+    );
+  }
+
+  /**
+   * Check if defense is currently held down
+   */
+  isDefenseDown(): boolean {
+    return this.defenseKey.isDown || this.defenseKeyL.isDown;
+  }
+
+  /**
    * Cleanup resources.
    */
   destroy(): void {
     this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-    // ... remove other keys if needed
+    this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.L);
   }
 }

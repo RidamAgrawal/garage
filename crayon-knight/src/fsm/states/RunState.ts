@@ -18,6 +18,12 @@ export class RunState implements IState {
   update(): void {
     if (this.entity.getController) {
       const controller = this.entity.getController();
+
+      if (controller.isDefensePressed?.() || controller.isDefenseDown?.()) {
+        this.entity.defend();
+        return;
+      }
+
       const dir = controller.getMovementDirection();
 
       if (dir.x === 0 && dir.y === 0) {

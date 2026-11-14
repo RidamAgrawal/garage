@@ -43,8 +43,6 @@ export class PatrolState implements IState {
   }
 
   exit(): void {
-    if (this.entity.body) {
-      this.entity.body.setVelocity(0, 0);
-    }
+    this.entity.body?.setVelocity(0, 0);
   }
 }

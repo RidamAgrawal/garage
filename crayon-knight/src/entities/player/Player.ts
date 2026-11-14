@@ -11,6 +11,7 @@ import { MovementComponent } from "@/components/MovementComponent";
 import { CombatComponent } from "@/components/CombatComponent";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { PLAYER_CONFIG } from "@/config/BalanceConfig";
+import { DefendState } from "@/fsm/states/DefendState";
 
 /**
  * Player Class — Inheritance ka sabse important example
@@ -82,6 +83,7 @@ export class Player extends Entity {
     this.fsm.addState("attack", new AttackState(this));
     this.fsm.addState("attack2", new AttackState(this));
     this.fsm.addState("hurt", new HurtState(this));
+    this.fsm.addState("defend", new DefendState(this));
     this.fsm.transition("idle");
   }
 
@@ -165,6 +167,16 @@ export class Player extends Entity {
    * @param knockbackDir - Kis direction mein dhakka
    */
   onDamaged(amount: number, knockbackDir: { x: number; y: number }) {
+    if (this.fsm.getCurrentStateKey() === "defend") {
+      // Defending blocks damage; apply reduced knockback
+      this.movement.applyKnockback(
+        knockbackDir.x,
+        knockbackDir.y,
+        PLAYER_CONFIG.knockbackForce * 0.3,
+      );
+      return;
+    }
+
     this.health.takeDamage(
       amount,
       new Phaser.Math.Vector2(knockbackDir.x, knockbackDir.y),
@@ -201,6 +213,10 @@ export class Player extends Entity {
     this.lastAttackTime = now;
     this.lastAttackAnim = pick;
     this.fsm.transition(pick);
+  }
+
+  public defend(): void {
+    this.fsm.transition("defend");
   }
 
   destroy(fromScene?: boolean) {

@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
 import { BANNER_FRAMES } from "@/constants/AssetKeys";
+import { MenuButton } from "@/ui/MenuButton";
 
 /**
  * Main Menu Scene
@@ -54,58 +55,13 @@ export class MainMenuScene extends Phaser.Scene {
       )
       .setOrigin(0.5);
 
-    this.createMenuItem(centreX, centreY - 40, "NEW GAME");
-
-    this.createMenuItem(centreX, centreY + 40, "OPTIONS");
-
-    this.createMenuItem(centreX, centreY + 120, "QUIT GAME");
-  }
-
-  private createMenuItem(x: number, y: number, label: string) {
-    const menuItemBg = this.add.nineslice(
-      0,
-      0,
-      "Button_Blue_3Slides",
-      0,
-      320,
-      64,
-      64,
-      64,
-      0,
-      0,
-    );
-    const menuItemText = this.add
-      .text(0, -4, label, {
-        fontFamily: "'Press Start 2P'",
-        fontSize: "20px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    const menuItem = this.add
-      .container(x, y, [menuItemBg, menuItemText])
-      .setSize(320, 64)
-      .setInteractive({ useHandCursor: true });
-
-    // The pressed art sits lower, so the label drops 4px with it
-    const look = (key: string, textY: number, color: string) => {
-      menuItemBg.setTexture(key);
-      menuItemText.setY(textY).setColor(color);
-    };
-
-    menuItem.on("pointerover", () =>
-      look("Button_Hover_3Slides", -4, "#ffe08a"),
-    );
-    menuItem.on("pointerout", () => look("Button_Blue_3Slides", -4, "#ffffff"));
-    menuItem.on("pointerdown", () =>
-      look("Button_Blue_3Slides_Pressed", 0, "#ffffff"),
-    );
-    menuItem.on("pointerup", () => {
-      look("Button_Hover_3Slides", -4, "#ffe08a");
-      if (label === "NEW GAME") this.scene.start(SceneKeys.GAME);
+    new MenuButton(this, centreX, centreY - 40, "NEW GAME", () => {
+      this.scene.start(SceneKeys.GAME);
     });
 
-    return menuItem;
+    new MenuButton(this, centreX, centreY + 40, "OPTIONS");
+
+    new MenuButton(this, centreX, centreY + 120, "QUIT GAME");
   }
 
   private createWaveTitle(x: number, y: number, text: string) {

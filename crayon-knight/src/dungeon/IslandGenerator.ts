@@ -50,7 +50,8 @@ export class IslandGenerator {
   }
 
   private rnd: () => number = Math.random;
-  private static makeRng(a: number) { // mulberry32
+  private static makeRng(a: number) {
+    // mulberry32
     return () => {
       a = (a + 0x6d2b79f5) | 0;
       let t = Math.imul(a ^ (a >>> 15), 1 | a);
@@ -59,7 +60,10 @@ export class IslandGenerator {
     };
   }
 
-  public generate(scene: Phaser.Scene, seed: number = Math.floor(Math.random() * 2 ** 31)): IslandBuildResult {
+  public generate(
+    scene: Phaser.Scene,
+    seed: number = Math.floor(Math.random() * 2 ** 31),
+  ): IslandBuildResult {
     const W = this.width;
     const H = this.height;
     const ts = this.tileSize;
@@ -313,7 +317,11 @@ export class IslandGenerator {
             b: 19,
             br: 20,
             topCap: 3,
+            verticalMiddleCap: 12,
             bottomCap: 21,
+            leftCap: 27,
+            horizontalMiddleCap: 28,
+            rightCap: 29,
           });
           flatLayer.putTileAt(tsFlat.firstgid + flatIdx, x, y);
         }
@@ -322,7 +330,14 @@ export class IslandGenerator {
         if (isElev(x, y - 1) && !isElev(x, y) && currentLand) {
           const isCliffLeft = !isElev(x - 1, y - 1);
           const isCliffRight = !isElev(x + 1, y - 1);
-          const cliffIdx = isCliffLeft ? 41 : isCliffRight ? 43 : 42;
+          const cliffIdx =
+            isCliffLeft && isCliffRight
+              ? 44
+              : isCliffLeft
+                ? 41
+                : isCliffRight
+                  ? 43
+                  : 42;
           cliffLayer.putTileAt(tsElev.firstgid + cliffIdx, x, y);
 
           // Layer 7: Shadow (cast under cliff face)
@@ -345,7 +360,11 @@ export class IslandGenerator {
             b: 24,
             br: 25,
             topCap: 8,
+            verticalMiddleCap: 17,
             bottomCap: 26,
+            leftCap: 32,
+            horizontalMiddleCap: 33,
+            rightCap: 34,
           });
           elevLayer.putTileAt(tsElev.firstgid + elevIdx, x, y);
         }
@@ -353,13 +372,7 @@ export class IslandGenerator {
     }
 
     // 6. Water stones: scatter animated rocks in offshore water
-    this.addWaterRocks(
-      rocksLayer,
-      tsRocks1,
-      tsRocks7,
-      isLand,
-      animatedTiles,
-    );
+    this.addWaterRocks(rocksLayer, tsRocks1, tsRocks7, isLand, animatedTiles);
 
     // 7. Setup tile animation timer (cycles foam & rock frames every 100ms)
     this.setupTileAnimations(scene, animatedTiles);
@@ -385,8 +398,11 @@ export class IslandGenerator {
     const cx = W / 2;
     const cy = H / 2;
     const r = this.rnd;
-    const p1 = r() * 6.28, p2 = r() * 6.28, p3 = r() * 6.28;
-    const f1 = 0.4 + r() * 0.3, f2 = 0.5 + r() * 0.3;
+    const p1 = r() * 6.28,
+      p2 = r() * 6.28,
+      p3 = r() * 6.28;
+    const f1 = 0.4 + r() * 0.3,
+      f2 = 0.5 + r() * 0.3;
 
     for (let y = 1; y < H - 1; y++) {
       for (let x = 1; x < W - 1; x++) {
@@ -448,8 +464,12 @@ export class IslandGenerator {
       bl: number;
       b: number;
       br: number;
-      topCap?: number;
-      bottomCap?: number;
+      topCap: number;
+      verticalMiddleCap: number;
+      bottomCap: number;
+      leftCap: number;
+      horizontalMiddleCap: number;
+      rightCap: number;
     },
   ): number {
     const hasT = check(x, y - 1);
@@ -458,8 +478,14 @@ export class IslandGenerator {
     const hasR = check(x + 1, y);
 
     // Land cell with only bottom neighbor connected (top cap: grass border on left, top, right)
-    if (!hasT && !hasL && !hasR && hasB) return idx.topCap ?? 3;
-    if (hasT && !hasL && !hasR && !hasB && idx.bottomCap !== undefined) return idx.bottomCap;
+    if (!hasT && !hasL && !hasR && hasB) return idx.topCap;
+    if (hasT && !hasL && !hasR && !hasB) return idx.bottomCap;
+    if (!hasT && !hasL && hasR && !hasB) return idx.leftCap;
+    if (!hasT && hasL && !hasR && !hasB) return idx.rightCap;
+
+    // 1-tile wide middle corridors (opposite sides bordered)
+    if (!hasL && !hasR) return idx.verticalMiddleCap;
+    if (!hasT && !hasB) return idx.horizontalMiddleCap;
 
     if (!hasT && !hasL) return idx.tl;
     if (!hasT && !hasR) return idx.tr;

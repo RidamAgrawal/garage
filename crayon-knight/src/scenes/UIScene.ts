@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
 import { HealthBar } from "@/ui/HealthBar";
 import { GoldCounter } from "@/ui/GoldCounter";
+import { TouchControls } from "@/ui/TouchControls";
 
 /**
  * UI Scene
@@ -20,6 +21,7 @@ export class UIScene extends Phaser.Scene {
     // Create UI components at fixed positions
     this.healthBar = new HealthBar(this, 20, 20);
     this.goldCounter = new GoldCounter(this, 20, 50);
+    if (TouchControls.isTouchDevice()) new TouchControls(this);
 
     // UI scene ka camera game world ko follow nahi karega
     // Yeh fixed position pe rahega — HUD style

@@ -14,7 +14,7 @@ export enum AssetKeys {
   WARRIOR_RUN = "warrior-run",
   WARRIOR_ATTACK = "warrior-attack", // FSM ke liye standardized key
   WARRIOR_ATTACK2 = "warrior-attack2",
-  WARRIOR_GUARD = "warrior-guard",
+  WARRIOR_GUARD = "warrior-defend",
 
   // === Gnome Sprite Keys ===
   GNOME_IDLE = "gnome-idle",
@@ -25,6 +25,7 @@ export enum AssetKeys {
   SKULL_IDLE = "skull-idle",
   SKULL_RUN = "skull-run", // File hai Skull_Walk par FSM "run" expect karta hai
   SKULL_ATTACK = "skull-attack",
+  SKULL_GUARD = "skull-defend",
 
   // === Spider Sprite Keys ===
   SPIDER_IDLE = "spider-idle",
@@ -154,7 +155,16 @@ export const AnimationAssets: Record<
     frameHeight: 192,
     frameRate: 10,
     start: 0,
-    end: 5,
+    end: 6,
+    repeat: 0,
+  },
+  [AssetKeys.SKULL_GUARD]: {
+    path: "assets/characters/Enemies/Skull/Skull_GUARD.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 10,
+    start: 0,
+    end: 6,
     repeat: 0,
   },
   // ─── Gnome (used by GNOME enemy) ───

@@ -17,9 +17,7 @@ export class IdleState implements IState {
 
   enter(): void {
     this.entity.play(`${this.entity.animPrefix}-idle`, true);
-    if (this.entity.body) {
-      this.entity.body.setVelocity(0, 0);
-    }
+    this.entity.body?.setVelocity(0, 0);
 
     // Enemy: schedule how long to stay idle (2–4s)
     if (this.entity.isEnemy) {
@@ -31,6 +29,10 @@ export class IdleState implements IState {
     if (this.entity.getController) {
       // Player logic
       const controller = this.entity.getController();
+      if (controller.isDefensePressed?.() || controller.isDefenseDown?.()) {
+        this.entity.defend();
+        return;
+      }
       const dir = controller.getMovementDirection();
       if (dir.x !== 0 || dir.y !== 0) {
         this.entity.fsm.transition("run");

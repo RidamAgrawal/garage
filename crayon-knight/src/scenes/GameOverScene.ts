@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
+import { MenuButton } from "@/ui/MenuButton";
 
 /**
  * Game Over Scene
@@ -18,45 +19,44 @@ export class GameOverScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.cameras.main;
+    const cx = width / 2;
+    const cy = height / 2;
 
     // Semi-transparent overlay
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
+    this.add.rectangle(cx, cy, width, height, 0x000000, 0.75);
 
     // Main death text
     this.add
-      .text(width / 2, height / 2 - 50, "YOU DIED", {
-        fontSize: "64px",
-        fontFamily: "monospace",
-        color: "#ff0000",
+      .text(cx, cy - 120, "YOU DIED", {
+        fontSize: "44px",
+        fontFamily: "'Press Start 2P', monospace",
+        color: "#ef4444",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     // Stats
     this.add
-      .text(width / 2, height / 2 + 30, `Gold Collected: ${this.gold}`, {
-        fontSize: "24px",
+      .text(cx, cy - 50, `Gold: ${this.gold}`, {
+        fontSize: "18px",
+        fontFamily: "'Press Start 2P', monospace",
         color: "#ffd700",
       })
       .setOrigin(0.5);
 
-    // Restart prompt (blinking)
-    const retryText = this.add
-      .text(width / 2, height / 2 + 100, "Press SPACE to Retry", {
-        fontSize: "20px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    this.tweens.add({
-      targets: retryText,
-      alpha: 0,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
+    // Retry & Main Menu buttons
+    new MenuButton(this, cx, cy + 25, "RETRY", () => {
+      this.scene.stop(SceneKeys.GAME_OVER);
+      this.scene.start(SceneKeys.GAME);
     });
 
-    // Listen for restart
+    new MenuButton(this, cx, cy + 105, "MAIN MENU", () => {
+      this.scene.stop(SceneKeys.GAME_OVER);
+      this.scene.stop(SceneKeys.UI);
+      this.scene.start(SceneKeys.MAIN_MENU);
+    });
+
+    // Spacebar keyboard shortcut for quick restart
     this.input.keyboard?.once("keydown-SPACE", () => {
       this.scene.stop(SceneKeys.GAME_OVER);
       this.scene.start(SceneKeys.GAME);
