@@ -37,6 +37,11 @@ export enum AssetKeys {
   TROLL_RUN = "troll-run", // File hai Troll_Walk par FSM "run" expect karta hai
   TROLL_ATTACK = "troll-attack",
 
+  // === Bomb Fish Sprite Keys ===
+  BOMBFISH_IDLE = "bombfish-idle",
+  BOMBFISH_RUN = "bombfish-run", // File hai Troll_Walk par FSM "run" expect karta hai
+  BOMBFISH_ATTACK = "bombfish-attack",
+
   // Tilesets
   DUNGEON_TILES = "DUNGEON_TILES",
 
@@ -49,6 +54,8 @@ export enum AssetKeys {
   // Effects
   SLASH_EFFECT = "SLASH_EFFECT",
   HIT_EFFECT = "HIT_EFFECT",
+  BOMB_SPIN = "bomb-spin",
+  BOMB_FUSE = "bomb-fuse",
 
   // Audio
   BGM_DUNGEON = "BGM_DUNGEON",
@@ -159,7 +166,7 @@ export const AnimationAssets: Record<
     repeat: 0,
   },
   [AssetKeys.SKULL_GUARD]: {
-    path: "assets/characters/Enemies/Skull/Skull_GUARD.png",
+    path: "assets/characters/Enemies/Skull/Skull_Guard.png",
     frameWidth: 192,
     frameHeight: 192,
     frameRate: 10,
@@ -253,6 +260,60 @@ export const AnimationAssets: Record<
     end: 5,
     repeat: 0,
   },
+  [AssetKeys.BOMBFISH_IDLE]: {
+    path: "assets/characters/Enemies/Bomb Fish/Bomb Fish_Idle.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    start: 0,
+    end: 7,
+    frameRate: 10,
+    repeat: -1,
+  },
+  [AssetKeys.BOMBFISH_RUN]: {
+    path: "assets/characters/Enemies/Bomb Fish/Bomb Fish_Run.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    start: 0,
+    end: 5,
+    frameRate: 10,
+    repeat: -1,
+  },
+  [AssetKeys.BOMBFISH_ATTACK]: {
+    path: "assets/characters/Enemies/Bomb Fish/Bomb Fish_Shoot.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    start: 0,
+    end: 6,
+    frameRate: 10,
+    repeat: 0,
+  },
+  [AssetKeys.BOMB_SPIN]: {
+    path: "assets/characters/Enemies/Bomb/Bomb_Spinning.png",
+    frameWidth: 128,
+    frameHeight: 128,
+    start: 0,
+    end: 3,
+    frameRate: 12,
+    repeat: -1,
+  },
+  [AssetKeys.BOMB_FUSE]: {
+    path: "assets/characters/Enemies/Bomb/Bomb_FuseLit.png",
+    frameWidth: 128,
+    frameHeight: 128,
+    start: 0,
+    end: 3,
+    frameRate: 12,
+    repeat: -1,
+  },
+  explosion1: {
+    path: "assets/Particle FX/Explosion_01.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    start: 0,
+    end: 7,
+    frameRate: 16,
+    repeat: 0,
+  },
 };
 
 // =============================================
@@ -332,6 +393,38 @@ export const TILESET_IMAGES: TilesetImageEntry[] = [
     key: "Button_Hover_3Slides",
     path: "assets/UI Elements/Buttons/Button_Hover_3Slides.png",
   },
+  {
+    key: "SmallBlueRoundButton_Regular",
+    path: "assets/UI Elements/Buttons/SmallBlueRoundButton_Regular.png",
+  },
+  {
+    key: "SmallBlueRoundButton_Pressed",
+    path: "assets/UI Elements/Buttons/SmallBlueRoundButton_Pressed.png",
+  },
+  {
+    key: "TinyRoundBlueButton",
+    path: "assets/UI Elements/Buttons/TinyRoundBlueButton.png",
+  },
+  {
+    key: "BigBar_Base",
+    path: "assets/UI Elements/Bars/BigBar_Base.png",
+  },
+  {
+    key: "BigBar_Fill",
+    path: "assets/UI Elements/Bars/BigBar_Fill.png",
+  },
+  {
+    key: "SmallBar_Base",
+    path: "assets/UI Elements/Bars/SmallBar_Base.png",
+  },
+  {
+    key: "SmallBar_Fill",
+    path: "assets/UI Elements/Bars/SmallBar_Fill.png",
+  },
+  { key: "Cursor_1", path: "assets/UI Elements/Cursors/Cursor_01.png" },
+  { key: "Cursor_2", path: "assets/UI Elements/Cursors/Cursor_02.png" },
+  { key: "Cursor_3", path: "assets/UI Elements/Cursors/Cursor_03.png" },
+  { key: "Cursor_4", path: "assets/UI Elements/Cursors/Cursor_04.png" },
 ];
 
 // =============================================

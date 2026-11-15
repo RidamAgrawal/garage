@@ -78,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     // ============================================================
     this.player = new Player(this, playerSpawn.x, playerSpawn.y);
     this.player.setDepth(20); // Characters map ke upar dikhein
+    this.events.on("bomb-hit", this.onBombHit, this);
 
     // ============================================================
     // Step 6: Enemies spawn karo
@@ -190,8 +191,13 @@ export class GameScene extends Phaser.Scene {
     this.scene.start(SceneKeys.GAME_OVER, { gold: this.gold });
   }
 
+  private onBombHit(e: Phaser.Physics.Arcade.Sprite) {
+    this.handlePlayerEnemyOverlap(this.player, e);
+  }
+
   shutdown() {
     EventBus.off(EventKeys.PLAYER_DIED, this.handleGameOver, this);
     EventBus.off(EventKeys.ENEMY_DIED, this.handleEnemyDied, this);
+    this.events.off("bomb-hit", this.onBombHit, this);
   }
 }

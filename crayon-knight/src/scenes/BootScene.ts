@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SceneKeys } from "@/constants/SceneKeys";
+import { CURSORS } from "@/ui/Cursors";
 
 /**
  * Boot Scene
@@ -19,6 +20,7 @@ export class BootScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    this.input.setDefaultCursor(CURSORS.arrow);
     // Chhote setup ke baad turant Preload scene pe transition
     this.scene.start(SceneKeys.PRELOAD);
   }

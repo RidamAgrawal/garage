@@ -1,7 +1,8 @@
 import Phaser from "phaser";
-import { EventBus } from "@/events/EventBus";
-import { EventKeys } from "@/constants/EventKeys";
 
+const CELL = 64; // base sheet = 64px cells; caps are cells 0 and 4, the stretchable middle is cell 2
+const BIGBAR_PAD = 51; // wooden frame thickness inside each end cap, in texture px. CALIBRATE to your art.
+const SMALLBAR_PAD = 57;
 /**
  * HealthBar — Heart-based health display
  *
@@ -10,90 +11,41 @@ import { EventKeys } from "@/constants/EventKeys";
  * Jab bhi player ka HP change ho, yeh automatically update hota hai.
  */
 export class HealthBar {
-  private scene: Phaser.Scene;
-  private graphics: Phaser.GameObjects.Graphics;
-  private x: number;
-  private y: number;
-  private heartSpacing: number = 24;
-  private heartRadius: number = 8;
+  readonly container: Phaser.GameObjects.Container;
+  private fill: Phaser.GameObjects.Image;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    this.scene = scene;
-    this.x = x;
-    this.y = y;
+  constructor(
+    scene: Phaser.Scene,
+    kind: "big" | "small",
+    x: number,
+    y: number,
+  ) {
+    const k = kind === "big" ? "Big" : "Small";
+    const tex = scene.textures.get(`${k}Bar_Base`);
+    for (const i of [0, 2, 4])
+      if (!tex.has(`${i}`)) tex.add(`${i}`, 0, i * CELL, 0, CELL, CELL);
 
-    this.graphics = this.scene.add.graphics();
-    this.graphics.setScrollFactor(0);
-    this.graphics.setDepth(100);
-
-    // EventBus se health change event listen karo
-    EventBus.on(
-      EventKeys.PLAYER_HEALTH_CHANGED,
-      this.handleHealthChanged,
-      this,
-    );
-
-    // Initial draw (3 hearts = 6 HP)
-    this.updateHealth(6, 6);
+    const cap = (cx: number, f: string) =>
+      scene.add.image(cx, 0, `${k}Bar_Base`, f).setOrigin(0, 0.5);
+    const pad = kind === "big" ? BIGBAR_PAD : SMALLBAR_PAD;
+    this.fill = scene.add
+      .image(pad, 0, `${k}Bar_Fill`)
+      .setOrigin(0, 0.5)
+      .setScale((3 * CELL - 2 * pad) / CELL, 1); // stretch to the full inner slot, caps included
+    // Fill goes last so it sits over the caps' dark slot but inside their frame
+    this.container = scene.add.container(x, y, [
+      cap(CELL, "2"),
+      cap(0, "0"),
+      cap(2 * CELL, "4"),
+      this.fill,
+    ]);
   }
 
-  /**
-   * Event handler — EventBus emit karta hai (currentHp, maxHp) as separate args
-   */
-  private handleHealthChanged(currentHp: number, maxHp: number): void {
-    this.updateHealth(currentHp, maxHp);
-  }
-
-  /**
-   * Hearts draw karo based on current/max HP
-   * 2 HP = 1 heart, so: 6 HP = ❤️❤️❤️, 5 HP = ❤️❤️💔, 3 HP = ❤️💔🖤
-   */
-  public updateHealth(currentHp: number, maxHp: number): void {
-    this.graphics.clear();
-
-    const totalHearts = Math.ceil(maxHp / 2);
-    const fullHearts = Math.floor(currentHp / 2);
-    const hasHalfHeart = currentHp % 2 !== 0;
-
-    for (let i = 0; i < totalHearts; i++) {
-      const cx = this.x + 10 + i * this.heartSpacing;
-      const cy = this.y + 10;
-
-      if (i < fullHearts) {
-        // Full Heart — red filled circle
-        this.graphics.fillStyle(0xff0000, 1);
-        this.graphics.fillCircle(cx, cy, this.heartRadius);
-      } else if (i === fullHearts && hasHalfHeart) {
-        // Half Heart — left half red, right half grey outline
-        this.graphics.fillStyle(0xff0000, 1);
-        this.graphics.beginPath();
-        this.graphics.arc(
-          cx,
-          cy,
-          this.heartRadius,
-          Phaser.Math.DegToRad(90),
-          Phaser.Math.DegToRad(270),
-          false,
-        );
-        this.graphics.fillPath();
-
-        this.graphics.lineStyle(2, 0x888888, 1);
-        this.graphics.beginPath();
-        this.graphics.arc(
-          cx,
-          cy,
-          this.heartRadius,
-          Phaser.Math.DegToRad(270),
-          Phaser.Math.DegToRad(90),
-          false,
-        );
-        this.graphics.strokePath();
-      } else {
-        // Empty Heart — grey outline
-        this.graphics.lineStyle(2, 0x888888, 1);
-        this.graphics.strokeCircle(cx, cy, this.heartRadius);
-      }
-    }
+  public setFraction(f: number): void {
+    f = Phaser.Math.Clamp(f, 0, 1);
+    this.fill
+      .setVisible(f > 0)
+      .setCrop(0, 0, this.fill.width * f, this.fill.height);
   }
 
   /**
@@ -101,13 +53,35 @@ export class HealthBar {
    * Warna memory leak hoga
    */
   public destroy(): void {
-    EventBus.off(
-      EventKeys.PLAYER_HEALTH_CHANGED,
-      this.handleHealthChanged,
-      this,
-    );
-    if (this.graphics) {
-      this.graphics.destroy();
+    if (this.container) {
+      this.container.destroy();
     }
   }
+}
+
+// Enemy bar: follows the hitbox, polls health each frame (no HealthComponent hooks needed), dies with the entity.
+export function attachHealthBar(
+  e: Phaser.Physics.Arcade.Sprite & {
+    health: { getCurrentHp(): number; getMaxHp(): number };
+  },
+  headTop = 0.2, // fraction of frame height that is empty above the head; differs per sprite
+) {
+  const S = 0.35; // 3 cells * 64 * 0.35 = ~67px wide
+  const bar = new HealthBar(e.scene, "small", 0, 0);
+  bar.container.setScale(S).setDepth(30);
+  const sync = () => {
+    const t = e.getTopCenter(); // follows scale and origin, so no body math
+    bar.container
+      .setVisible(e.active)
+      .setPosition(
+        t.x - (3 * CELL * S) / 2,
+        t.y + e.displayHeight * headTop - 6,
+      );
+    bar.setFraction(e.health.getCurrentHp() / e.health.getMaxHp());
+  };
+  e.scene.events.on("postupdate", sync);
+  e.once("destroy", () => {
+    e.scene.events.off("postupdate", sync);
+    bar.destroy();
+  });
 }

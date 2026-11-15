@@ -23,7 +23,7 @@ export const stickDirs = (dx: number, dy: number, dz: number) => ({
 
 export class TouchControls {
   private root: Phaser.GameObjects.Container;
-  private thumb!: Phaser.GameObjects.Arc;
+  private thumb!: Phaser.GameObjects.Image;
   private held = new Set<number>();
   private stickId = -1;
   private home = { x: 0, y: 0, r: 1 };
@@ -65,7 +65,9 @@ export class TouchControls {
       this.stickId = p.id;
       this.onMove(p);
     });
-    this.thumb = s.add.circle(sx, sy, R * 0.45, 0x47aba9, 0.7);
+    this.thumb = s.add
+      .image(sx, sy, "TinyRoundBlueButton")
+      .setDisplaySize(R, R);
     this.root.add([base, this.thumb]);
 
     // Actions: bottom-right
@@ -75,16 +77,20 @@ export class TouchControls {
       const x = cx + a.x * d,
         y = cy + a.y * d;
       const b = s.add
-        .circle(x, y, r, 0x47aba9, 0.55)
-        .setStrokeStyle(3 * u, 0xefe1ab, 0.8);
-      b.setInteractive(new circle(r, r, r), circle.Contains);
+        .image(x, y, "SmallBlueRoundButton_Regular")
+        .setDisplaySize(2 * r, 2 * r);
+      // Hit area is in unscaled texture space, so a circle on the frame size stays round at any scale
+      b.setInteractive(
+        new circle(b.width / 2, b.height / 2, b.width / 2),
+        circle.Contains,
+      );
       const up = () => {
         this.release(a.key);
-        b.setFillStyle(0x47aba9, 0.55);
+        b.setTexture("SmallBlueRoundButton_Regular");
       };
       b.on("pointerdown", () => {
         this.press(a.key);
-        b.setFillStyle(0xefe1ab, 0.6);
+        b.setTexture("SmallBlueRoundButton_Pressed");
       });
       b.on("pointerup", up);
       b.on("pointerout", up); // finger slid off

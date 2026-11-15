@@ -322,6 +322,7 @@ export class IslandGenerator {
             leftCap: 27,
             horizontalMiddleCap: 28,
             rightCap: 29,
+            roundCap: 35,
           });
           flatLayer.putTileAt(tsFlat.firstgid + flatIdx, x, y);
         }
@@ -365,6 +366,7 @@ export class IslandGenerator {
             leftCap: 32,
             horizontalMiddleCap: 33,
             rightCap: 34,
+            roundCap: 35,
           });
           elevLayer.putTileAt(tsElev.firstgid + elevIdx, x, y);
         }
@@ -470,6 +472,7 @@ export class IslandGenerator {
       leftCap: number;
       horizontalMiddleCap: number;
       rightCap: number;
+      roundCap: number;
     },
   ): number {
     const hasT = check(x, y - 1);
@@ -477,7 +480,7 @@ export class IslandGenerator {
     const hasL = check(x - 1, y);
     const hasR = check(x + 1, y);
 
-    // Land cell with only bottom neighbor connected (top cap: grass border on left, top, right)
+    if (!hasT && !hasL && !hasR && !hasB) return idx.roundCap;
     if (!hasT && !hasL && !hasR && hasB) return idx.topCap;
     if (hasT && !hasL && !hasR && !hasB) return idx.bottomCap;
     if (!hasT && !hasL && hasR && !hasB) return idx.leftCap;
@@ -679,9 +682,14 @@ export class IslandGenerator {
         type: "skeleton",
       });
       enemies.push({
-        x: flatTiles[Math.floor(flatTiles.length * 0.85)].x,
-        y: flatTiles[Math.floor(flatTiles.length * 0.85)].y,
+        x: flatTiles[Math.floor(flatTiles.length * 0.8)].x,
+        y: flatTiles[Math.floor(flatTiles.length * 0.8)].y,
         type: "slime",
+      });
+      enemies.push({
+        x: flatTiles[Math.floor(flatTiles.length * 0.9)].x,
+        y: flatTiles[Math.floor(flatTiles.length * 0.9)].y,
+        type: "bombfish",
       });
     }
 

@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { CURSORS } from "./Cursors";
 
 /**
  * MenuButton — Interactive 9-slice / 3-slice fantasy button
@@ -43,7 +44,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.labelText = labelText;
 
     this.setSize(width, height);
-    this.setInteractive({ useHandCursor: true });
+    this.setInteractive({ cursor: CURSORS.hand });
 
     const look = (key: string, textY: number, color: string) => {
       this.bg.setTexture(key);

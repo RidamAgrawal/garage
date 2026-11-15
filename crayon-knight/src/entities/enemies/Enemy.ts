@@ -11,6 +11,7 @@ import { CombatComponent } from "@/components/CombatComponent";
 import { EventBus } from "@/events/EventBus";
 import { EventKeys } from "@/constants/EventKeys";
 import type { Player } from "@/entities/player/Player";
+import { attachHealthBar } from "@/ui/HealthBar";
 
 /**
  * Enemy Base Class — Polymorphism ka example
@@ -51,6 +52,7 @@ export class Enemy extends Entity {
       goldDrop: { min: number; max: number };
       animPrefix?: string; // Animation prefix — FSM states ke liye
       scale?: number; // Sprite scale for game world fit
+      barTop?: number; // Fraction of frame height that is empty above the head; differs per sprite
     },
   ) {
     super(scene, x, y, texture);
@@ -76,6 +78,7 @@ export class Enemy extends Entity {
 
     // Components add karo — same pattern as Player
     this.health = new HealthComponent(config.maxHp);
+    attachHealthBar(this, config.barTop);
     this.movement = new MovementComponent(config.speed);
     this.combat = new CombatComponent({
       attackPower: config.attackPower,

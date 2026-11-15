@@ -5,6 +5,7 @@ import { Skeleton } from "@/entities/enemies/Skeleton";
 import { Slime } from "@/entities/enemies/Slime";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { ENEMY_CONFIGS } from "@/config/BalanceConfig";
+import { BombFish } from "@/entities/enemies/BombFish";
 
 /**
  * SpawnManager — Factory Pattern ka example
@@ -57,6 +58,11 @@ export class SpawnManager {
         enemy = new Slime(this.scene, x, y);
         break;
 
+      case "bombfish":
+        // Spider sprite se Slime represent hota hai
+        enemy = new BombFish(this.scene, x, y);
+        break;
+
       case "goblin":
       case "boss":
         // Troll sprite — bada aur powerful enemy
@@ -96,7 +102,7 @@ export class SpawnManager {
       { x: mapWidth * 0.75, y: mapHeight * 0.25, type: "slime" },
       { x: mapWidth * 0.25, y: mapHeight * 0.75, type: "skeleton" },
       { x: mapWidth * 0.75, y: mapHeight * 0.75, type: "goblin" },
-      { x: mapWidth * 0.5, y: mapHeight * 0.4, type: "slime" },
+      { x: mapWidth * 0.5, y: mapHeight * 0.4, type: "bombfish" },
     ];
 
     for (const pos of positions) {
