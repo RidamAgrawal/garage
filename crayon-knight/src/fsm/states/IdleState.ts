@@ -42,11 +42,22 @@ export class IdleState implements IState {
         this.entity.attack();
       }
     } else if (this.entity.isEnemy) {
-      // Chase takes priority
+      // Chase or attack/defend takes priority
       if (
         this.entity.isPlayerInRange &&
         this.entity.isPlayerInRange(this.entity.detectionRange ?? 200)
       ) {
+        const attackRange = this.entity.getAttackRange?.() ?? 0;
+        if (attackRange > 0 && this.entity.isPlayerInRange(attackRange)) {
+          if (this.entity.target?.isAttacking?.()) {
+            this.entity.fsm.transition("defend");
+            return;
+          }
+          if (this.entity.combat?.canAttack(time)) {
+            this.entity.fsm.transition("attack");
+            return;
+          }
+        }
         this.entity.fsm.transition("chase");
         return;
       }

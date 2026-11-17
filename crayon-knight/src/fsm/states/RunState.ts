@@ -37,6 +37,18 @@ export class RunState implements IState {
 
       this.entity.handleMovement();
     } else if (this.entity.isEnemy) {
+      const attackRange = this.entity.getAttackRange?.() ?? 0;
+      if (attackRange > 0 && this.entity.isPlayerInRange?.(attackRange)) {
+        if (this.entity.target?.isAttacking?.()) {
+          this.entity.fsm.transition("defend");
+          return;
+        }
+        if (this.entity.combat?.canAttack(this.entity.scene.time.now)) {
+          this.entity.fsm.transition("attack");
+          return;
+        }
+      }
+
       // Lost aggro — return to idle/patrol cycle
       const aggroRange = (this.entity.detectionRange ?? 200) * 1.5;
       if (

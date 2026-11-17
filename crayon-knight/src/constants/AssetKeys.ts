@@ -11,6 +11,8 @@ export enum AssetKeys {
 
   // === Warrior Sprite Keys (used as spritesheet texture keys in Phaser cache) ===
   WARRIOR_IDLE = "warrior-idle",
+  WARRIOR_IDLE_WITH_SHIELD = "warrior-idle-with-shield",
+  WARRIOR_RUN_WITH_SHIELD = "warrior-run-with-shield",
   WARRIOR_RUN = "warrior-run",
   WARRIOR_ATTACK = "warrior-attack", // FSM ke liye standardized key
   WARRIOR_ATTACK2 = "warrior-attack2",
@@ -91,7 +93,7 @@ export const AnimationAssets: Record<
   }
 > = {
   // ─── Warrior (Player) ───
-  [AssetKeys.WARRIOR_IDLE]: {
+  [AssetKeys.WARRIOR_IDLE_WITH_SHIELD]: {
     path: "assets/characters/Player/Warrior/Warrior_Idle.png",
     frameWidth: 192,
     frameHeight: 192,
@@ -100,8 +102,26 @@ export const AnimationAssets: Record<
     end: 7,
     repeat: -1,
   },
-  [AssetKeys.WARRIOR_RUN]: {
+  [AssetKeys.WARRIOR_IDLE]: {
+    path: "assets/characters/Player/Warrior/Warrior_Idle_Without_Shield.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 8,
+    start: 0,
+    end: 7,
+    repeat: -1,
+  },
+  [AssetKeys.WARRIOR_RUN_WITH_SHIELD]: {
     path: "assets/characters/Player/Warrior/Warrior_Run.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 8,
+    start: 0,
+    end: 5,
+    repeat: -1,
+  },
+  [AssetKeys.WARRIOR_RUN]: {
+    path: "assets/characters/Player/Warrior/Warrior_Run_Without_Shield.png",
     frameWidth: 192,
     frameHeight: 192,
     frameRate: 8,

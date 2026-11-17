@@ -23,14 +23,14 @@ export class AttackState implements IState {
       this.entity.play(attackKey, true);
 
       this.entity.once("animationcomplete", () => {
-        this.entity.fsm.transition("idle");
+        this.entity.fsm.transition(this.entity.isEnemy ? "chase" : "idle");
       });
     } else {
       this.entity.play(`${this.entity.animPrefix}-idle`, true);
 
       this.entity.scene.time.delayedCall(400, () => {
         if (this.entity.active) {
-          this.entity.fsm.transition("idle");
+          this.entity.fsm.transition(this.entity.isEnemy ? "chase" : "idle");
         }
       });
     }

@@ -20,7 +20,7 @@ export const ENEMY_CONFIGS = {
     speed: 80,
     attackPower: 1,
     attackCooldownMs: 1000,
-    attackRange: 28,
+    attackRange: 48,
     detectionRange: 150,
     knockbackForce: 150,
     goldDrop: { min: 1, max: 3 },

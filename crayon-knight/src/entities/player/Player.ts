@@ -188,6 +188,9 @@ export class Player extends Entity {
         knockbackDir.y,
         PLAYER_CONFIG.knockbackForce,
       );
+      if ("vibrate" in navigator) {
+        navigator.vibrate(50);
+      }
     }
   }
 
@@ -213,6 +216,11 @@ export class Player extends Entity {
     this.lastAttackTime = now;
     this.lastAttackAnim = pick;
     this.fsm.transition(pick);
+  }
+
+  isAttacking(): boolean {
+    const key = this.fsm.getCurrentStateKey();
+    return key === "attack" || key === "attack2";
   }
 
   public defend(): void {

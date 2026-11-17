@@ -167,6 +167,9 @@ export class GameScene extends Phaser.Scene {
 
     if (!player.active || !enemy.active) return;
 
+    // Weapon-wielding enemies (like skeleton) attack via animation, not passive body contact
+    if (enemy.getAttackRange && enemy.getAttackRange() > 0) return;
+
     const bodyP = player.body as Phaser.Physics.Arcade.Body;
     const bodyE = enemy.body as Phaser.Physics.Arcade.Body;
     if (!bodyP || !bodyE) return;

@@ -52,3 +52,6 @@ public/assets/audio/
 # public/assets/data/ — game config JSON files (free, self-made)
 # public/assets/ui/ — if self-made UI elements
 # Any placeholder assets you create yourself
+
+#skills
+.agents

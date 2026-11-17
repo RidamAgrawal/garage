@@ -52,7 +52,7 @@ export class BombFish extends Enemy {
     }
   }
 
-  private shoot(p: Phaser.Physics.Arcade.Sprite, time: number) {
+  private shoot(_p: Phaser.Physics.Arcade.Sprite, time: number) {
     const A = "bombfish-attack";
     this.shooting = true;
     this.nextShot = time + COOLDOWN_MS;

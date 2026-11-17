@@ -5,6 +5,8 @@ import { IdleState } from "@/fsm/states/IdleState";
 import { RunState } from "@/fsm/states/RunState";
 import { HurtState } from "@/fsm/states/HurtState";
 import { PatrolState } from "@/fsm/states/PatrolState";
+import { AttackState } from "@/fsm/states/AttackState";
+import { DefendState } from "@/fsm/states/DefendState";
 import { HealthComponent } from "@/components/HealthComponent";
 import { MovementComponent } from "@/components/MovementComponent";
 import { CombatComponent } from "@/components/CombatComponent";
@@ -96,6 +98,8 @@ export class Enemy extends Entity {
     this.fsm.addState("idle", new IdleState(this));
     this.fsm.addState("patrol", new PatrolState(this));
     this.fsm.addState("chase", new RunState(this));
+    this.fsm.addState("attack", new AttackState(this));
+    this.fsm.addState("defend", new DefendState(this));
     this.fsm.addState("hurt", new HurtState(this));
     this.fsm.transition("idle");
   }
@@ -123,6 +127,24 @@ export class Enemy extends Entity {
     return this.getDistanceToPlayer() <= range;
   }
 
+  getAttackRange(): number {
+    return this.combat?.getAttackRange() ?? 0;
+  }
+
+  executeAttack() {
+    this.combat.performAttack(this.scene.time.now);
+    const range = this.getAttackRange();
+    if (this.target && this.target.active && this.isPlayerInRange(range)) {
+      const dx = this.target.x - this.x;
+      const dy = this.target.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      this.target.onDamaged(this.combat.getAttackPower(), {
+        x: dx / dist,
+        y: dy / dist,
+      });
+    }
+  }
+
   /** Player ki taraf move karo */
   chasePlayer() {
     if (!this.target || !this.target.active) return;
@@ -147,6 +169,11 @@ export class Enemy extends Entity {
   /** Jab enemy ko damage lage */
   onDamaged(amount: number, knockbackDir: { x: number; y: number }) {
     if (this.health.isDead()) return;
+
+    if (this.fsm.getCurrentStateKey() === "defend") {
+      this.movement.applyKnockback(knockbackDir.x, knockbackDir.y, 40);
+      return;
+    }
 
     this.health.takeDamage(
       amount,
