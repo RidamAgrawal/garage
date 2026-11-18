@@ -5,6 +5,7 @@ import { EventBus } from "@/events/EventBus";
 import { TilemapManager, IslandGenerator } from "@/dungeon";
 import { SpawnManager } from "@/systems/SpawnManager";
 import { Player } from "@/entities/player/Player";
+import { AssetKeys } from "@/constants/AssetKeys";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
@@ -118,6 +119,11 @@ export class GameScene extends Phaser.Scene {
     );
 
     // ============================================================
+    // Step 7b: Shield Pickup
+    // ============================================================
+    this.spawnShieldPickup(spawnPoints);
+
+    // ============================================================
     // Step 8: Camera Setup — Player ko follow karo
     // ============================================================
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -202,5 +208,38 @@ export class GameScene extends Phaser.Scene {
     EventBus.off(EventKeys.PLAYER_DIED, this.handleGameOver, this);
     EventBus.off(EventKeys.ENEMY_DIED, this.handleEnemyDied, this);
     this.events.off("bomb-hit", this.onBombHit, this);
+  }
+
+  /** Spawn a floating shield pickup between player and enemies */
+  private spawnShieldPickup(spawnPoints: {
+    player: { x: number; y: number } | null;
+    enemies: { x: number; y: number; type: string }[];
+  }) {
+    const p = spawnPoints.player;
+    if (!p) return;
+
+    // Place shield halfway between player spawn and first enemy (or offset from player)
+    const e = spawnPoints.enemies[0];
+    const sx = e ? (p.x + e.x) / 2 : p.x + 128;
+    const sy = e ? (p.y + e.y) / 2 : p.y - 64;
+
+    const shield = this.add.sprite(sx, sy, `${AssetKeys.SHIELD_PICKUP}-1`);
+    shield.play(AssetKeys.SHIELD_PICKUP);
+    shield.setDepth(15);
+    // Floating bob
+    this.tweens.add({
+      targets: shield,
+      y: sy - 8,
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+    this.physics.add.existing(shield, true);
+
+    this.physics.add.overlap(this.player, shield, () => {
+      shield.destroy();
+      this.player.pickupShield();
+    });
   }
 }

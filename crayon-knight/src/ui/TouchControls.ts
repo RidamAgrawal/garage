@@ -1,4 +1,6 @@
 import Phaser from "phaser";
+import { EventBus } from "@/events/EventBus";
+import { EventKeys } from "@/constants/EventKeys";
 const K = Phaser.Input.Keyboard.KeyCodes;
 
 // EDIT THESE to the keys Player actually reads. Movement sends arrows + WASD together.
@@ -27,6 +29,9 @@ export class TouchControls {
   private held = new Set<number>();
   private stickId = -1;
   private home = { x: 0, y: 0, r: 1 };
+  private defEnabled = false;
+  private defBtn?: Phaser.GameObjects.Image;
+  private defText?: Phaser.GameObjects.Text;
 
   // Primary pointer, so touchscreen laptops and desktops stay false
   static isTouchDevice = () =>
@@ -39,7 +44,18 @@ export class TouchControls {
     scene.input.on("pointermove", this.onMove, this);
     scene.input.on("pointerup", this.onUp, this);
     scene.events.once("shutdown", this.destroy, this);
+    EventBus.on(EventKeys.SHIELD_PICKED_UP, this.enableDef, this);
   }
+
+  private enableDef = () => {
+    this.defEnabled = true;
+    if (this.defBtn) {
+      this.defBtn.setTexture("SmallBlueRoundButton_Regular");
+    }
+    if (this.defText) {
+      this.defText.setColor("#efe1ab");
+    }
+  };
 
   private layout() {
     const s = this.scene;
@@ -76,8 +92,9 @@ export class TouchControls {
     for (const a of ACTIONS) {
       const x = cx + a.x * d,
         y = cy + a.y * d;
+      const isDef = a.key === K.SHIFT;
       const b = s.add
-        .image(x, y, "SmallBlueRoundButton_Regular")
+        .image(x, y, isDef && !this.defEnabled ? "SmallBlueRoundButton_Disabled_Regular" : "SmallBlueRoundButton_Regular")
         .setDisplaySize(2 * r, 2 * r);
       // Hit area is in unscaled texture space, so a circle on the frame size stays round at any scale
       b.setInteractive(
@@ -86,21 +103,24 @@ export class TouchControls {
       );
       const up = () => {
         this.release(a.key);
-        b.setTexture("SmallBlueRoundButton_Regular");
+        b.setTexture(isDef && !this.defEnabled ? "SmallBlueRoundButton_Disabled_Regular" : "SmallBlueRoundButton_Regular");
       };
       b.on("pointerdown", () => {
+        if (isDef && !this.defEnabled) return;
         this.press(a.key);
         b.setTexture("SmallBlueRoundButton_Pressed");
       });
       b.on("pointerup", up);
       b.on("pointerout", up); // finger slid off
+      if (isDef) this.defBtn = b;
       const t = s.add
         .text(x, y, a.label, {
           fontFamily: "'Press Start 2P'",
           fontSize: `${Math.round(10 * u)}px`,
-          color: "#efe1ab",
+          color: isDef && !this.defEnabled ? "#888" : "#efe1ab",
         })
         .setOrigin(0.5);
+      if (isDef) this.defText = t;
       this.root.add([b, t]);
     }
   }
@@ -174,5 +194,6 @@ export class TouchControls {
     this.scene.scale.off("resize", this.layout, this);
     this.scene.input.off("pointermove", this.onMove, this);
     this.scene.input.off("pointerup", this.onUp, this);
+    EventBus.off(EventKeys.SHIELD_PICKED_UP, this.enableDef, this);
   }
 }

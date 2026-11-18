@@ -53,6 +53,9 @@ export enum AssetKeys {
   HEART_EMPTY = "HEART_EMPTY",
   GOLD_ICON = "GOLD_ICON",
 
+  // Pickups
+  SHIELD_PICKUP = "shield-pickup",
+
   // Effects
   SLASH_EFFECT = "SLASH_EFFECT",
   HIT_EFFECT = "HIT_EFFECT",
@@ -334,6 +337,15 @@ export const AnimationAssets: Record<
     frameRate: 16,
     repeat: 0,
   },
+  [AssetKeys.SHIELD_PICKUP]: {
+    path: "assets/tilesets/Shield_Floating.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    start: 0,
+    end: 8,
+    frameRate: 16,
+    repeat: -1,
+  }
 };
 
 // =============================================
@@ -420,6 +432,10 @@ export const TILESET_IMAGES: TilesetImageEntry[] = [
   {
     key: "SmallBlueRoundButton_Pressed",
     path: "assets/UI Elements/Buttons/SmallBlueRoundButton_Pressed.png",
+  },
+  {
+    key: "SmallBlueRoundButton_Disabled_Regular",
+    path: "assets/UI Elements/Buttons/SmallBlueRoundButton_Disabled_Regular.png",
   },
   {
     key: "TinyRoundBlueButton",

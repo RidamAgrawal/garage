@@ -12,6 +12,8 @@ import { CombatComponent } from "@/components/CombatComponent";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { PLAYER_CONFIG } from "@/config/BalanceConfig";
 import { DefendState } from "@/fsm/states/DefendState";
+import { EventBus } from "@/events/EventBus";
+import { EventKeys } from "@/constants/EventKeys";
 
 /**
  * Player Class — Inheritance ka sabse important example
@@ -33,6 +35,7 @@ export class Player extends Entity {
   private enemyGroup?: Phaser.Physics.Arcade.Group;
   private lastAttackTime = 0;
   private lastAttackAnim: "attack" | "attack2" = "attack";
+  public hasShield = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, AssetKeys.WARRIOR_IDLE);
@@ -224,10 +227,36 @@ export class Player extends Entity {
   }
 
   public defend(): void {
+    if (!this.hasShield) return;
     this.fsm.transition("defend");
   }
 
+  override play(
+    key: string | Phaser.Animations.Animation | Phaser.Types.Animations.PlayAnimationConfig,
+    ignoreIfPlaying?: boolean,
+  ): this {
+    if (this.hasShield && typeof key === "string") {
+      if (key === AssetKeys.WARRIOR_IDLE) key = AssetKeys.WARRIOR_IDLE_WITH_SHIELD;
+      else if (key === AssetKeys.WARRIOR_RUN) key = AssetKeys.WARRIOR_RUN_WITH_SHIELD;
+    }
+    return super.play(key, ignoreIfPlaying);
+  }
+
+  pickupShield(): void {
+    if (this.hasShield) return;
+    this.hasShield = true;
+
+    // Immediately replay current idle/run animation with shield
+    const curKey = this.fsm.getCurrentStateKey();
+    if (curKey === "idle" || curKey === "run") {
+      this.play(`${this.animPrefix}-${curKey}`);
+    }
+
+    EventBus.emit(EventKeys.SHIELD_PICKED_UP);
+  }
+
   destroy(fromScene?: boolean) {
+    if (!this.scene) return;
     if (this.controller) {
       this.controller.destroy();
     }
