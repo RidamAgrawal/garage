@@ -69,12 +69,13 @@ export class HealthComponent implements IComponent {
       );
     }
 
-    // Event emit — UI ko bata do HP change hua
-    EventBus.emit(EventKeys.PLAYER_HEALTH_CHANGED, this.currentHp, this.maxHp);
+    // Event emit — UI ko bata do HP change hua (only for player entities)
+    if (!(this.entity as any).isEnemy) {
+      EventBus.emit(EventKeys.PLAYER_HEALTH_CHANGED, this.currentHp, this.maxHp);
+    }
 
-    if (this.currentHp <= 0) {
+    if (this.currentHp <= 0 && !(this.entity as any).isEnemy) {
       EventBus.emit(EventKeys.PLAYER_DIED, this.entity);
-      EventBus.emit(EventKeys.ENEMY_DIED, this.entity);
     }
   }
 

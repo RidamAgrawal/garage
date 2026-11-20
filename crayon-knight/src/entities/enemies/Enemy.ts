@@ -149,6 +149,13 @@ export class Enemy extends Entity {
   chasePlayer() {
     if (!this.target || !this.target.active) return;
 
+    // Stop moving when already within attack range so the attack state can fire cleanly
+    const attackRange = this.getAttackRange();
+    if (attackRange > 0 && this.isPlayerInRange(attackRange)) {
+      this.movement.move(0, 0);
+      return;
+    }
+
     const dx = this.target.x - this.x;
     const dy = this.target.y - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
