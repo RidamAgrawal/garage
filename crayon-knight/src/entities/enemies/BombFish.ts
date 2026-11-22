@@ -94,7 +94,12 @@ export class BombFish extends Enemy {
     });
   }
 
-  private land(scene: Phaser.Scene, bomb: Phaser.GameObjects.Sprite, x: number, y: number) {
+  private land(
+    scene: Phaser.Scene,
+    bomb: Phaser.GameObjects.Sprite,
+    x: number,
+    y: number,
+  ) {
     if (!bomb.active) return;
     bomb.setPosition(x, y).play("bomb-fuse");
     const f = { t: 0 };

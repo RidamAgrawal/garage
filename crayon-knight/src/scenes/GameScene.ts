@@ -8,6 +8,7 @@ import { Player } from "@/entities/player/Player";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { runState } from "@/state/RunState";
 import { AudioSystem } from "@/systems/AudioSystem";
+import { IslandBuildResult } from "@/types/game.types";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
@@ -23,6 +24,7 @@ export class GameScene extends Phaser.Scene {
   private boundaries!: Phaser.Physics.Arcade.StaticGroup;
   private mapType: "procedural" | "tiled" = "procedural";
   private audioSystem = new AudioSystem();
+  private islandResult!: IslandBuildResult;
 
   constructor() {
     super({ key: SceneKeys.GAME });
@@ -53,10 +55,10 @@ export class GameScene extends Phaser.Scene {
       spawnPoints = this.tilemapManager.getSpawnPoints();
     } else {
       const islandGen = new IslandGenerator();
-      const result = islandGen.generate(this);
-      map = result.map;
-      this.boundaries = result.boundaries;
-      spawnPoints = result.spawnPoints;
+      this.islandResult = islandGen.generate(this);
+      map = this.islandResult.map;
+      this.boundaries = this.islandResult.boundaries;
+      spawnPoints = this.islandResult.spawnPoints;
     }
 
     // Physics world bounds = map size
@@ -80,6 +82,7 @@ export class GameScene extends Phaser.Scene {
     // Step 5: Player spawn karo
     // ============================================================
     this.player = new Player(this, playerSpawn.x, playerSpawn.y);
+    this.player.attachElevation(this.islandResult.terrainAt);
     this.player.setDepth(20); // Characters map ke upar dikhein
 
     // ============================================================
@@ -104,8 +107,19 @@ export class GameScene extends Phaser.Scene {
     // ============================================================
     // Step 7: Physics Colliders Setup
     // ============================================================
-    // Player ↔ Map collision (cliff boundaries)
-    this.physics.add.collider(this.player, this.boundaries);
+    // Player ↔ Map collision (elevation-aware cliff & water boundaries)
+    this.physics.add.collider(
+      this.player,
+      this.boundaries,
+      undefined,
+      (player, wall) => {
+        const isCliff =
+          (wall as Phaser.GameObjects.Zone).getData("cliff") === true;
+        return !(isCliff && (player as Player).elevation?.canClearCliff()); // true = collide
+      },
+      this,
+    );
+
     // Enemies ↔ Map collision (cliff boundaries)
     this.physics.add.collider(this.enemyGroup, this.boundaries);
 

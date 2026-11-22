@@ -38,6 +38,10 @@ export class IdleState implements IFSMState {
         this.entity.fsm.transition("run");
         return;
       }
+      if (controller.isJumpJustPressed?.()) {
+        this.entity.jump?.();
+        return;
+      }
       if (controller.isAttackPressed()) {
         this.entity.attack();
       }

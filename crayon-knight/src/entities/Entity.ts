@@ -64,6 +64,8 @@ export class Entity extends Phaser.Physics.Arcade.Sprite {
     for (const component of this.components.values()) {
       component.update(time, delta);
     }
+    const body = this.body as Phaser.Physics.Arcade.Body | null;
+    if (body) this.setDepth(body.bottom); // terrain layers are depth 0-8, so entities always sit above them
   }
 
   public destroy(fromScene?: boolean): void {

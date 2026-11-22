@@ -10,10 +10,13 @@ const MOVE = {
   up: [K.UP, K.W],
   down: [K.DOWN, K.S],
 };
-// Action buttons for Crayon Knight: Attack (SPACE) & Defend (SHIFT / L)
+// Action buttons for Crayon Knight: standard gamepad diamond layout
+// West: ATK (SPACE) | East: DEF (SHIFT) | South: JMP (C) | North: SP (X)
 const ACTIONS = [
-  { label: "ATK", key: K.SPACE, x: 0.8, y: -0.5 },
-  { label: "DEF", key: K.SHIFT, x: -0.8, y: 0.5 },
+  { label: "ATK", key: K.SPACE, x: -1, y: 0 },
+  { label: "DEF", key: K.SHIFT, x: 1, y: 0 },
+  { label: "JMP", key: K.C, x: 0, y: 1 },
+  { label: "SP", key: K.X, x: 0, y: -1 },
 ];
 
 export const stickDirs = (dx: number, dy: number, dz: number) => ({
@@ -62,11 +65,12 @@ export class TouchControls {
     this.releaseAll();
     this.root.removeAll(true);
     const { width, height } = s.scale;
-    const u = s.scale.displayScale.x; // game units per CSS px
-    const m = 24 * u,
-      R = 56 * u,
-      r = 34 * u,
-      d = 1.5 * r;
+    const u = s.scale.displayScale.x || 1; // game units per CSS px
+    const minDim = Math.min(width, height);
+    const r = Math.max(24 * u, Math.min(32 * u, minDim * 0.055));
+    const d = 1.45 * r;
+    const m = Math.max(16 * u, Math.min(24 * u, minDim * 0.04));
+    const R = Math.max(48 * u, Math.min(56 * u, minDim * 0.1));
     const circle = Phaser.Geom.Circle;
 
     // Stick: bottom-left
@@ -86,7 +90,7 @@ export class TouchControls {
       .setDisplaySize(R, R);
     this.root.add([base, this.thumb]);
 
-    // Actions: bottom-right
+    // Actions: bottom-right (center of diamond gamepad cluster)
     const cx = width - m - d - r,
       cy = height - m - d - r;
     for (const a of ACTIONS) {
@@ -94,7 +98,13 @@ export class TouchControls {
         y = cy + a.y * d;
       const isDef = a.key === K.SHIFT;
       const b = s.add
-        .image(x, y, isDef && !this.defEnabled ? "SmallBlueRoundButton_Disabled_Regular" : "SmallBlueRoundButton_Regular")
+        .image(
+          x,
+          y,
+          isDef && !this.defEnabled
+            ? "SmallBlueRoundButton_Disabled_Regular"
+            : "SmallBlueRoundButton_Regular",
+        )
         .setDisplaySize(2 * r, 2 * r);
       // Hit area is in unscaled texture space, so a circle on the frame size stays round at any scale
       b.setInteractive(
@@ -103,7 +113,11 @@ export class TouchControls {
       );
       const up = () => {
         this.release(a.key);
-        b.setTexture(isDef && !this.defEnabled ? "SmallBlueRoundButton_Disabled_Regular" : "SmallBlueRoundButton_Regular");
+        b.setTexture(
+          isDef && !this.defEnabled
+            ? "SmallBlueRoundButton_Disabled_Regular"
+            : "SmallBlueRoundButton_Regular",
+        );
       };
       b.on("pointerdown", () => {
         if (isDef && !this.defEnabled) return;
@@ -176,6 +190,8 @@ export class TouchControls {
       [K.D]: { key: "d", code: "KeyD" },
       [K.W]: { key: "w", code: "KeyW" },
       [K.S]: { key: "s", code: "KeyS" },
+      [K.C]: { key: "c", code: "KeyC" },
+      [K.X]: { key: "x", code: "KeyX" },
     };
     const info = keyMap[code] || {};
     window.dispatchEvent(

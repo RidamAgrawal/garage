@@ -32,6 +32,7 @@ Never cut: validation at trust boundaries, error handling that prevents data los
 (Yes, this file also applies to agents working on the ponytail repo itself. Especially to them.)
 
 ## Architectural Guardrails (2.5D Platformer Evolution)
+
 - **No new runtime dependencies.** Pure Phaser 4 + TypeScript + Vite only. Never suggest React, Zustand, or DOM UI overlays.
 - **2.5D Physics Rule:** Keep Arcade world gravity at `{ x: 0, y: 0 }`. All jumping, falling, and cliff elevation MUST use `ElevationComponent` (`z`, `vz`, `groundLevel`) and collider `processCallback` checks.
 - **Data-Driven First:** New enemies, projectiles, and pickups must be added via `AssetKeys.ts` (`AnimationAssets`) + `BalanceConfig.ts` before creating any new subclass.

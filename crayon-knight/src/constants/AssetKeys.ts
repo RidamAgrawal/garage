@@ -61,6 +61,7 @@ export enum AssetKeys {
   HIT_EFFECT = "HIT_EFFECT",
   BOMB_SPIN = "bomb-spin",
   BOMB_FUSE = "bomb-fuse",
+  SPLASH_EFFECT = "splash-effect",
 
   // Audio
   BGM_DUNGEON = "BGM_DUNGEON",
@@ -337,6 +338,15 @@ export const AnimationAssets: Record<
     frameRate: 16,
     repeat: 0,
   },
+  [AssetKeys.SPLASH_EFFECT]: {
+    path: "assets/Particle FX/Water Splash.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    start: 0,
+    end: 8,
+    frameRate: 16,
+    repeat: 0,
+  },
   [AssetKeys.SHIELD_PICKUP]: {
     path: "assets/tilesets/Shield_Floating.png",
     frameWidth: 64,
@@ -345,7 +355,7 @@ export const AnimationAssets: Record<
     end: 8,
     frameRate: 16,
     repeat: -1,
-  }
+  },
 };
 
 // =============================================

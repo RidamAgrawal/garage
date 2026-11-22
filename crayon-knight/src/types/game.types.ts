@@ -13,6 +13,12 @@ export enum Direction {
   RIGHT,
 }
 
+export enum TerrainType {
+  WATER = 0,
+  FLAT = 1,
+  ELEVATED = 2,
+}
+
 /**
  * Entity Configuration
  * Interface defining the base properties of any game entity (Player, Enemy, etc.)
@@ -48,3 +54,21 @@ export type Vector2 = {
   x: number;
   y: number;
 };
+
+export interface IslandBuildResult {
+  map: Phaser.Tilemaps.Tilemap;
+  boundaries: Phaser.Physics.Arcade.StaticGroup;
+  spawnPoints: {
+    player: { x: number; y: number } | null;
+    enemies: { x: number; y: number; type: string }[];
+  };
+  terrainAt: (worldX: number, worldY: number) => TerrainType;
+}
+
+export interface AnimatedTile {
+  tile: Phaser.Tilemaps.Tile;
+  firstgid: number;
+  baseIndex: number;
+  frameStep: number;
+  frameCount: number;
+}

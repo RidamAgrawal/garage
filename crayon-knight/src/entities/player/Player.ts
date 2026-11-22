@@ -10,10 +10,15 @@ import { HealthComponent } from "@/components/HealthComponent";
 import { MovementComponent } from "@/components/MovementComponent";
 import { CombatComponent } from "@/components/CombatComponent";
 import { AssetKeys } from "@/constants/AssetKeys";
-import { PLAYER_CONFIG } from "@/config/BalanceConfig";
+import { ELEVATION_CONFIG, PLAYER_CONFIG } from "@/config/BalanceConfig";
 import { DefendState } from "@/fsm/states/DefendState";
+import { JumpState } from "@/fsm/states/JumpState";
 import { EventBus } from "@/events/EventBus";
 import { EventKeys } from "@/constants/EventKeys";
+import {
+  TerrainQuery,
+  ElevationComponent,
+} from "@/components/ElevationComponent";
 
 /**
  * Player Class — Inheritance ka sabse important example
@@ -30,12 +35,14 @@ export class Player extends Entity {
   public health: HealthComponent;
   public movement: MovementComponent;
   public combat: CombatComponent;
+  public elevation: ElevationComponent | null = null;
 
   private controller: PlayerController;
   private enemyGroup?: Phaser.Physics.Arcade.Group;
   private lastAttackTime = 0;
   private lastAttackAnim: "attack" | "attack2" = "attack";
   public hasShield = false;
+  private isFallingInWater = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, AssetKeys.WARRIOR_IDLE);
@@ -48,8 +55,8 @@ export class Player extends Entity {
     // taaki collision natural feel kare
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
-      body.setSize(40, 50);
-      body.setOffset(76, 120);
+      body.setSize(24, 16);
+      body.setOffset(84, 112);
       this.setScale(0.5);
       body.setCollideWorldBounds(true);
     }
@@ -87,6 +94,7 @@ export class Player extends Entity {
     this.fsm.addState("attack2", new AttackState(this));
     this.fsm.addState("hurt", new HurtState(this));
     this.fsm.addState("defend", new DefendState(this));
+    this.fsm.addState("jump", new JumpState(this));
     this.fsm.transition("idle");
   }
 
@@ -97,7 +105,9 @@ export class Player extends Entity {
    */
   protected preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
-    this.fsm.update(time, delta);
+    if (!this.isFallingInWater) {
+      this.fsm.update(time, delta);
+    }
   }
 
   /**
@@ -105,6 +115,7 @@ export class Player extends Entity {
    * Called by RunState.update()
    */
   handleMovement() {
+    if (this.isFallingInWater) return;
     const dir = this.controller.getMovementDirection();
     this.movement.move(dir.x, dir.y);
   }
@@ -208,6 +219,7 @@ export class Player extends Entity {
   }
 
   attack() {
+    if (this.isFallingInWater) return;
     const now = this.scene.time.now;
     let pick: "attack" | "attack2" = "attack";
 
@@ -227,17 +239,22 @@ export class Player extends Entity {
   }
 
   public defend(): void {
-    if (!this.hasShield) return;
+    if (this.isFallingInWater || !this.hasShield) return;
     this.fsm.transition("defend");
   }
 
   override play(
-    key: string | Phaser.Animations.Animation | Phaser.Types.Animations.PlayAnimationConfig,
+    key:
+      | string
+      | Phaser.Animations.Animation
+      | Phaser.Types.Animations.PlayAnimationConfig,
     ignoreIfPlaying?: boolean,
   ): this {
     if (this.hasShield && typeof key === "string") {
-      if (key === AssetKeys.WARRIOR_IDLE) key = AssetKeys.WARRIOR_IDLE_WITH_SHIELD;
-      else if (key === AssetKeys.WARRIOR_RUN) key = AssetKeys.WARRIOR_RUN_WITH_SHIELD;
+      if (key === AssetKeys.WARRIOR_IDLE)
+        key = AssetKeys.WARRIOR_IDLE_WITH_SHIELD;
+      else if (key === AssetKeys.WARRIOR_RUN)
+        key = AssetKeys.WARRIOR_RUN_WITH_SHIELD;
     }
     return super.play(key, ignoreIfPlaying);
   }
@@ -253,6 +270,57 @@ export class Player extends Entity {
     }
 
     EventBus.emit(EventKeys.SHIELD_PICKED_UP);
+  }
+
+  public attachElevation(terrainAt: TerrainQuery): void {
+    this.elevation = new ElevationComponent(terrainAt, () =>
+      this.fellInWater(),
+    );
+    this.addComponent("elevation", this.elevation); // call after body.setSize/setOffset
+  }
+
+  public jump(): void {
+    if (this.isFallingInWater) return;
+    if (this.elevation?.isGrounded) this.fsm.transition("jump");
+  }
+
+  private fellInWater(): void {
+    if (this.isFallingInWater) return;
+    this.isFallingInWater = true;
+
+    this.movement.stop();
+    if (this.body) {
+      (this.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
+    }
+
+    // Water splash effect
+    const splash = this.scene.add.sprite(
+      this.x,
+      this.y,
+      AssetKeys.SPLASH_EFFECT,
+    );
+    splash.setScale(0.7);
+    splash.setDepth(this.depth + 1);
+    splash.play(AssetKeys.SPLASH_EFFECT);
+    splash.once("animationcomplete", () => {
+      splash.destroy();
+    });
+
+    // Fade player out like defeated enemies
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      duration: 300,
+      onComplete: () => {
+        this.health.takeDamage(ELEVATION_CONFIG.WATER_DAMAGE);
+        if (!this.health.isDead()) {
+          this.elevation?.respawn();
+          this.alpha = 1;
+          this.fsm.transition("idle");
+        }
+        this.isFallingInWater = false;
+      },
+    });
   }
 
   destroy(fromScene?: boolean) {

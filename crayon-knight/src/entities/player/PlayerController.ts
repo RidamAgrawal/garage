@@ -11,6 +11,8 @@ export class PlayerController {
   private attackKey: Phaser.Input.Keyboard.Key;
   private defenseKey: Phaser.Input.Keyboard.Key;
   private defenseKeyL: Phaser.Input.Keyboard.Key;
+  private jumpKey: Phaser.Input.Keyboard.Key;
+  private specialKey: Phaser.Input.Keyboard.Key;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -35,6 +37,12 @@ export class PlayerController {
     );
     this.defenseKeyL = this.scene.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.L,
+    );
+    this.jumpKey = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.C,
+    );
+    this.specialKey = this.scene.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.X,
     );
   }
 
@@ -64,7 +72,24 @@ export class PlayerController {
    * Check if attack was just pressed.
    */
   isAttackPressed(): boolean {
-    return Phaser.Input.Keyboard.JustDown(this.attackKey);
+    return (
+      Phaser.Input.Keyboard.JustDown(this.attackKey) ||
+      Phaser.Input.Keyboard.JustDown(this.specialKey)
+    );
+  }
+
+  /**
+   * Check if special attack was just pressed.
+   */
+  isSpecialPressed(): boolean {
+    return Phaser.Input.Keyboard.JustDown(this.specialKey);
+  }
+
+  /**
+   * Check if jump was just pressed.
+   */
+  isJumpJustPressed(): boolean {
+    return Phaser.Input.Keyboard.JustDown(this.jumpKey);
   }
 
   /**
@@ -91,5 +116,7 @@ export class PlayerController {
     this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.L);
+    this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.C);
+    this.scene.input.keyboard?.removeKey(Phaser.Input.Keyboard.KeyCodes.X);
   }
 }

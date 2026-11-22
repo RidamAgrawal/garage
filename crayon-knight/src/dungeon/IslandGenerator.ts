@@ -1,27 +1,9 @@
 import Phaser from "phaser";
-
-export enum TerrainType {
-  WATER = 0,
-  FLAT = 1,
-  ELEVATED = 2,
-}
-
-export interface IslandBuildResult {
-  map: Phaser.Tilemaps.Tilemap;
-  boundaries: Phaser.Physics.Arcade.StaticGroup;
-  spawnPoints: {
-    player: { x: number; y: number } | null;
-    enemies: { x: number; y: number; type: string }[];
-  };
-}
-
-interface AnimatedTile {
-  tile: Phaser.Tilemaps.Tile;
-  firstgid: number;
-  baseIndex: number;
-  frameStep: number;
-  frameCount: number;
-}
+import {
+  AnimatedTile,
+  IslandBuildResult,
+  TerrainType,
+} from "@/types/game.types";
 
 /**
  * Procedural Island Generator
@@ -385,7 +367,9 @@ export class IslandGenerator {
     // 9. Find spawn points (Player + Enemies)
     const spawnPoints = this.findSpawnPoints(grid);
 
-    return { map, boundaries, spawnPoints };
+    const terrainAt = (wx: number, wy: number): TerrainType =>
+      grid[Math.floor(wy / ts)]?.[Math.floor(wx / ts)] ?? TerrainType.WATER;
+    return { map, boundaries, spawnPoints, terrainAt };
   }
 
   /** Generates organic island terrain matrix (Water, Flat, Elevated) */
@@ -604,38 +588,50 @@ export class IslandGenerator {
     const H = this.height;
     const ts = this.tileSize;
 
+    const T = 2; // wall thickness in px
+    const add = (cx: number, cy: number, w: number, h: number) => {
+      const zone = scene.add.zone(cx, cy, w, h);
+      zone.setData("cliff", true);
+      scene.physics.add.existing(zone, true);
+      boundaries.add(zone);
+    };
+    const E = TerrainType.ELEVATED,
+      F = TerrainType.FLAT,
+      WA = TerrainType.WATER;
+
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const t = grid[y][x];
 
-        // 1. Cliff face collision (blocks movement upwards into cliff)
-        if (
-          t === TerrainType.FLAT &&
-          y > 0 &&
-          grid[y - 1][x] === TerrainType.ELEVATED
-        ) {
-          const zone = scene.add.zone(x * ts + ts / 2, y * ts + 16, ts, 32);
-          scene.physics.add.existing(zone, true);
-          boundaries.add(zone);
+        // Cliff face: whole flat tile under an elevated tile is solid (cliff sprite sits here)
+        if (t === F && y > 0 && grid[y - 1][x] === E) {
+          add(x * ts + ts / 2, y * ts + ts / 2, ts, ts);
         }
 
-        // 2. Water perimeter collision (prevents walking off island)
-        if (t === TerrainType.WATER) {
-          const hasLandNeighbor =
-            (y > 0 && grid[y - 1][x] !== TerrainType.WATER) ||
-            (y < H - 1 && grid[y + 1][x] !== TerrainType.WATER) ||
-            (x > 0 && grid[y][x - 1] !== TerrainType.WATER) ||
-            (x < W - 1 && grid[y][x + 1] !== TerrainType.WATER);
+        // Vertical wall on the shared edge with the right neighbour
+        if (x < W - 1) {
+          const r = grid[y][x + 1];
+          if ((t === F && r === E) || (t === E && r === F)) {
+            add((x + 1) * ts, y * ts + ts / 2, T, ts);
+          }
+        }
 
-          if (hasLandNeighbor) {
-            const zone = scene.add.zone(
-              x * ts + ts / 2,
-              y * ts + ts / 2,
-              ts,
-              ts,
-            );
-            scene.physics.add.existing(zone, true);
-            boundaries.add(zone);
+        // Horizontal wall on the plateau's top edge (flat above, elevated below)
+        if (y < H - 1 && t === F && grid[y + 1][x] === E) {
+          add(x * ts + ts / 2, (y + 1) * ts, ts, T);
+        }
+
+        // Water perimeter (unchanged)
+        if (t === WA) {
+          const land = (xx: number, yy: number) =>
+            xx >= 0 && xx < W && yy >= 0 && yy < H && grid[yy][xx] !== WA;
+          if (
+            land(x, y - 1) ||
+            land(x, y + 1) ||
+            land(x - 1, y) ||
+            land(x + 1, y)
+          ) {
+            add(x * ts + ts / 2, y * ts + ts / 2, ts, ts);
           }
         }
       }

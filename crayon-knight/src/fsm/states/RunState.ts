@@ -31,6 +31,11 @@ export class RunState implements IFSMState {
         return;
       }
 
+      if (controller.isJumpJustPressed?.()) {
+        this.entity.jump?.();
+        return;
+      }
+
       if (controller.isAttackPressed()) {
         this.entity.attack();
       }
