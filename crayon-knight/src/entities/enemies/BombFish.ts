@@ -68,40 +68,45 @@ export class BombFish extends Enemy {
   private fire() {
     const p = this.target;
     if (!p?.active) return;
-    const s = this.scene;
+    const scene = this.scene;
+    if (!scene) return;
     const sx = this.x,
       sy = this.y - 10;
     const tx = p.x,
       ty = p.y; // aim where the player is now, so moving players can dodge
-    const bomb = s.add
+    const bomb = scene.add
       .sprite(sx, sy, "bomb-spin")
       .setDepth(20)
       .setScale(0.5)
       .play("bomb-spin");
     const f = { t: 0 };
-    s.tweens.add({
+    scene.tweens.add({
       targets: f,
       t: 1,
       duration: AIR_MS,
       onUpdate: () =>
+        bomb.active &&
         bomb.setPosition(
           Phaser.Math.Linear(sx, tx, f.t),
           Phaser.Math.Linear(sy, ty, f.t) - 4 * ARC_H * f.t * (1 - f.t), // parabola, peaks at ARC_H
         ),
-      onComplete: () => this.land(bomb, tx, ty),
+      onComplete: () => this.land(scene, bomb, tx, ty),
     });
   }
 
-  private land(bomb: Phaser.GameObjects.Sprite, x: number, y: number) {
+  private land(scene: Phaser.Scene, bomb: Phaser.GameObjects.Sprite, x: number, y: number) {
+    if (!bomb.active) return;
     bomb.setPosition(x, y).play("bomb-fuse");
     const f = { t: 0 };
-    this.scene.tweens.add({
+    scene.tweens.add({
       targets: f,
       t: 1,
       duration: BOUNCE_MS,
-      onUpdate: () => bomb.setY(y - 4 * BOUNCE_H * f.t * (1 - f.t)), // same parabola as the flight, so it ends back on the ground
+      onUpdate: () =>
+        bomb.active && bomb.setY(y - 4 * BOUNCE_H * f.t * (1 - f.t)), // same parabola as the flight, so it ends back on the ground
     });
-    this.scene.time.delayedCall(FUSE_MS, () => {
+    scene.time.delayedCall(FUSE_MS, () => {
+      if (!bomb.active) return;
       bomb
         .play("explosion1")
         .once(Phaser.Animations.Events.ANIMATION_COMPLETE, () =>
@@ -109,7 +114,10 @@ export class BombFish extends Enemy {
         );
       const p = this.target;
       if (p?.active && Phaser.Math.Distance.Between(x, y, p.x, p.y) < BLAST_R) {
-        this.scene.events.emit("bomb-hit", this); // GameScene's existing handler applies the damage
+        const dx = p.x - x;
+        const dy = p.y - y;
+        const len = Math.hypot(dx, dy) || 1;
+        p.onDamaged(1, { x: dx / len, y: dy / len });
       }
     });
   }
