@@ -1,10 +1,10 @@
-import { IState } from "@/fsm/IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
 /**
  * Run state for entities.
  * Hindi: State pattern ka use entity movement ko manage karne ke liye kiya gaya hai.
  */
-export class RunState implements IState {
+export class RunState implements IFSMState {
   private entity: any;
 
   constructor(entity: any) {

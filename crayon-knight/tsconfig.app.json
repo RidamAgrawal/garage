@@ -13,7 +13,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["phaser"]
+    "types": ["phaser"],
+    "noEmit": true
   },
   "include": ["src"]
 }

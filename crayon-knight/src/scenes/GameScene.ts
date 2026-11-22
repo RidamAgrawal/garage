@@ -6,6 +6,8 @@ import { TilemapManager, IslandGenerator } from "@/dungeon";
 import { SpawnManager } from "@/systems/SpawnManager";
 import { Player } from "@/entities/player/Player";
 import { AssetKeys } from "@/constants/AssetKeys";
+import { runState } from "@/state/RunState";
+import { AudioSystem } from "@/systems/AudioSystem";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
@@ -19,8 +21,8 @@ export class GameScene extends Phaser.Scene {
   private tilemapManager?: TilemapManager;
   private spawnManager!: SpawnManager;
   private boundaries!: Phaser.Physics.Arcade.StaticGroup;
-  private gold: number = 0;
   private mapType: "procedural" | "tiled" = "procedural";
+  private audioSystem = new AudioSystem();
 
   constructor() {
     super({ key: SceneKeys.GAME });
@@ -33,7 +35,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.gold = 0;
+    this.audioSystem.init(this);
 
     // ============================================================
     // Step 1: Map Setup (Procedural Island by default, or Tiled JSON)
@@ -145,7 +147,7 @@ export class GameScene extends Phaser.Scene {
     this.events.once("shutdown", this.shutdown, this);
 
     // Initial broadcasts
-    EventBus.emit(EventKeys.GOLD_CHANGED, this.gold);
+    EventBus.emit(EventKeys.GOLD_CHANGED, runState.gold);
     EventBus.emit(
       EventKeys.PLAYER_HEALTH_CHANGED,
       this.player.health.getCurrentHp(),
@@ -189,19 +191,19 @@ export class GameScene extends Phaser.Scene {
 
   /** Dushman mara → gold collect karo */
   private handleEnemyDied(data: { gold: number }) {
-    this.gold += data.gold ?? 0;
-    EventBus.emit(EventKeys.GOLD_CHANGED, this.gold);
+    runState.addGold(data.gold ?? 0);
   }
 
   private handleGameOver() {
     this.scene.stop(SceneKeys.UI);
     this.scene.stop(SceneKeys.GAME);
-    this.scene.start(SceneKeys.GAME_OVER, { gold: this.gold });
+    this.scene.start(SceneKeys.GAME_OVER);
   }
 
   shutdown() {
     EventBus.off(EventKeys.PLAYER_DIED, this.handleGameOver, this);
     EventBus.off(EventKeys.ENEMY_DIED, this.handleEnemyDied, this);
+    this.audioSystem.destroy();
   }
 
   /** Spawn a floating shield pickup between player and enemies */

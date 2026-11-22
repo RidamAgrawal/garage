@@ -30,3 +30,11 @@ Take the first option that fully works:
 Never cut: validation at trust boundaries, error handling that prevents data loss, security, accessibility, the calibration real hardware needs, anything the user asked for.
 
 (Yes, this file also applies to agents working on the ponytail repo itself. Especially to them.)
+
+## Architectural Guardrails (2.5D Platformer Evolution)
+- **No new runtime dependencies.** Pure Phaser 4 + TypeScript + Vite only. Never suggest React, Zustand, or DOM UI overlays.
+- **2.5D Physics Rule:** Keep Arcade world gravity at `{ x: 0, y: 0 }`. All jumping, falling, and cliff elevation MUST use `ElevationComponent` (`z`, `vz`, `groundLevel`) and collider `processCallback` checks.
+- **Data-Driven First:** New enemies, projectiles, and pickups must be added via `AssetKeys.ts` (`AnimationAssets`) + `BalanceConfig.ts` before creating any new subclass.
+- **State Ownership:** Transient entity physics/FSM state stays on the entity; cross-stage run state lives in `RunState`; cross-scene communication goes strictly through `EventBus` (`EventKeys` enum).
+- **Lifecycle Hygiene:** Every `EventBus.on(...)` call in a Scene or System MUST have a matching `EventBus.off(...)` in `shutdown`/`destroy`. Never mutate `Phaser.Animations.AnimationManager` at runtime.
+- **Build Gate:** Every task must pass `npm run build` (`tsc -b && vite build`) with zero TypeScript errors and strict `noUnusedLocals` compliance.

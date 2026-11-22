@@ -1,6 +1,6 @@
 /**
  * Balance Configuration
- * Constants tuning player, enemy stats and dungeon generation.
+ * Constants tuning player, enemy stats and island generation.
  * Game balance ko yahan se easily tweak kiya ja sakta hai.
  */
 
@@ -51,14 +51,4 @@ export const ENEMY_CONFIGS = {
     animPrefix: "troll", // FSM animation keys: troll-idle, troll-walk, troll-attack
     scale: 0.35, // 384px sprite → ~134px in-game (BOSS size)
   },
-};
-
-export const DUNGEON_CONFIG = {
-  tileSize: 32,
-  roomMinSize: 7,
-  roomMaxSize: 13,
-  mapWidth: 50,
-  mapHeight: 50,
-  maxRooms: 7,
-  maxEnemiesPerRoom: 3,
 };

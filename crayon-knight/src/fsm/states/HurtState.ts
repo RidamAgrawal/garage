@@ -1,9 +1,9 @@
-import { IState } from "@/fsm/IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
 /**
  * Hurt state for entities.
  */
-export class HurtState implements IState {
+export class HurtState implements IFSMState {
   private entity: any;
   private timerEvent: Phaser.Time.TimerEvent | null = null;
 

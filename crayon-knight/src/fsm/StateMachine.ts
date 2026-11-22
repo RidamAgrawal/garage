@@ -1,4 +1,4 @@
-import { IState } from "@/fsm/IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
 /**
  * State Machine (FSM)
@@ -10,12 +10,12 @@ import { IState } from "@/fsm/IState";
  * ya jab ek transition already chal rahi ho toh wapas na jaaye.
  */
 export class StateMachine {
-  private states: Map<string, IState> = new Map();
-  private currentState: IState | undefined;
+  private states: Map<string, IFSMState> = new Map();
+  private currentState: IFSMState | undefined;
   private currentStateKey: string = "";
   private isTransitioning: boolean = false;
 
-  public addState(name: string, state: IState): this {
+  public addState(name: string, state: IFSMState): this {
     this.states.set(name, state);
     return this;
   }

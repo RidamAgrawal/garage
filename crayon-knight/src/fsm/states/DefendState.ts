@@ -1,6 +1,6 @@
-import { IState } from "../IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
-export class DefendState implements IState {
+export class DefendState implements IFSMState {
   private entity: any;
 
   constructor(entity: any) {

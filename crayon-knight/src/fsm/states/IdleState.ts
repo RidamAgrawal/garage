@@ -1,4 +1,4 @@
-import { IState } from "@/fsm/IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
 /**
  * Idle state for entities (Player/Enemy).
@@ -7,7 +7,7 @@ import { IState } from "@/fsm/IState";
  * Enemy: stays still for 2–4s playing idle anim, then transitions to patrol.
  *        If player enters detection range, transitions to chase immediately.
  */
-export class IdleState implements IState {
+export class IdleState implements IFSMState {
   private entity: any;
   private idleUntil = 0;
 

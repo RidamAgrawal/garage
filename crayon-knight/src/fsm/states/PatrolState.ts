@@ -1,10 +1,10 @@
-import { IState } from "@/fsm/IState";
+import { IFSMState } from "@/fsm/IFSMState";
 
 /**
  * PatrolState — Enemy slowly wanders horizontally, then returns to idle.
  * Transitions: player in range → chase, patrol timer done → idle.
  */
-export class PatrolState implements IState {
+export class PatrolState implements IFSMState {
   private entity: any;
   private endTime = 0;
   private dirX = 1;
