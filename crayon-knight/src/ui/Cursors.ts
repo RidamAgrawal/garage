@@ -12,7 +12,7 @@ export const CURSORS = {
 export function addFullscreenButton(scene: Phaser.Scene) {
   if (!scene.scale.fullscreen.available) return;
   const btn = scene.add
-    .image(0, 0, "Cursor_4")
+    .image(0, 0, "maximize")
     .setDepth(100)
     .setInteractive({ cursor: CURSORS.hand });
   const place = () => {
@@ -23,6 +23,9 @@ export function addFullscreenButton(scene: Phaser.Scene) {
   };
   place();
   scene.scale.on("resize", place);
-  btn.on("pointerup", () => scene.scale.toggleFullscreen()); // pointerup counts as a user gesture on touch
+  btn.on("pointerup", () => {
+    scene.scale.toggleFullscreen();
+    btn.texture.key === "maximize" ? btn.setTexture("minimize") : btn.setTexture("maximize");
+  }); // pointerup counts as a user gesture on touch
   scene.events.once("shutdown", () => scene.scale.off("resize", place));
 }

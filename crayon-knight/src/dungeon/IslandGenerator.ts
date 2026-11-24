@@ -589,9 +589,15 @@ export class IslandGenerator {
     const ts = this.tileSize;
 
     const T = 2; // wall thickness in px
-    const add = (cx: number, cy: number, w: number, h: number) => {
+    const add = (
+      cx: number,
+      cy: number,
+      w: number,
+      h: number,
+      boundaryType: "cliff" | "shore" = "cliff",
+    ) => {
       const zone = scene.add.zone(cx, cy, w, h);
-      zone.setData("cliff", true);
+      zone.setData("boundaryType", boundaryType);
       scene.physics.add.existing(zone, true);
       boundaries.add(zone);
     };
@@ -631,7 +637,7 @@ export class IslandGenerator {
             land(x - 1, y) ||
             land(x + 1, y)
           ) {
-            add(x * ts + ts / 2, y * ts + ts / 2, ts, ts);
+            add(x * ts + ts / 2, y * ts + ts / 2, ts, ts, "shore");
           }
         }
       }

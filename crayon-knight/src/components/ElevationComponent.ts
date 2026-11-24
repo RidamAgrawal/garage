@@ -139,7 +139,7 @@ export class ElevationComponent implements IComponent {
       .setPosition(b.center.x, b.bottom)
       .setScale(Math.max(0.4, 1 - this.z / 120))
       .setAlpha(0.35 * e.alpha)
-      .setDepth(b.bottom - 0.1);
+      .setDepth(b.bottom - 1);
   }
 
   destroy(): void {

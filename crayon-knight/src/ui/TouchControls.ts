@@ -13,10 +13,10 @@ const MOVE = {
 // Action buttons for Crayon Knight: standard gamepad diamond layout
 // West: ATK (SPACE) | East: DEF (SHIFT) | South: JMP (C) | North: SP (X)
 const ACTIONS = [
-  { label: "ATK", key: K.SPACE, x: -1, y: 0 },
-  { label: "DEF", key: K.SHIFT, x: 1, y: 0 },
-  { label: "JMP", key: K.C, x: 0, y: 1 },
-  { label: "SP", key: K.X, x: 0, y: -1 },
+  { label: "ATK", key: K.SPACE, x: -1, y: 0, texture: "swordIcon" },
+  { label: "DEF", key: K.SHIFT, x: 1, y: 0, texture: "shieldIcon" },
+  { label: "JMP", key: K.C, x: 0, y: 1, texture: "jumpIcon" },
+  // { label: "SP", key: K.X, x: 0, y: -1, texture: "swordIcon" },
 ];
 
 export const stickDirs = (dx: number, dy: number, dz: number) => ({
@@ -34,7 +34,6 @@ export class TouchControls {
   private home = { x: 0, y: 0, r: 1 };
   private defEnabled = false;
   private defBtn?: Phaser.GameObjects.Image;
-  private defText?: Phaser.GameObjects.Text;
 
   // Primary pointer, so touchscreen laptops and desktops stay false
   static isTouchDevice = () =>
@@ -54,9 +53,6 @@ export class TouchControls {
     this.defEnabled = true;
     if (this.defBtn) {
       this.defBtn.setTexture("SmallBlueRoundButton_Regular");
-    }
-    if (this.defText) {
-      this.defText.setColor("#efe1ab");
     }
   };
 
@@ -128,13 +124,9 @@ export class TouchControls {
       b.on("pointerout", up); // finger slid off
       if (isDef) this.defBtn = b;
       const t = s.add
-        .text(x, y, a.label, {
-          fontFamily: "'Press Start 2P'",
-          fontSize: `${Math.round(10 * u)}px`,
-          color: isDef && !this.defEnabled ? "#888" : "#efe1ab",
-        })
+        .image(x, y, a.texture)
+        .setDisplaySize(r, r)
         .setOrigin(0.5);
-      if (isDef) this.defText = t;
       this.root.add([b, t]);
     }
   }

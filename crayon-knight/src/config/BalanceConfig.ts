@@ -61,7 +61,7 @@ export const ELEVATION_CONFIG = {
   CLIFF_CLEAR_RATIO: 0.75,
   AIR_CONTROL: 0.85,
   WATER_DAMAGE: 1,
-  HIT_Z: 16, // above this, ground melee/contact cannot connect
+  HIT_Z: 20, // above this, ground melee/contact cannot connect
 } as const;
 
 // total height an airborne entity needs to pass a cliff rect (56: within 8px of the plateau top)

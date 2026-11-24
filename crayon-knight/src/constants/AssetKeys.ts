@@ -471,6 +471,11 @@ export const TILESET_IMAGES: TilesetImageEntry[] = [
   { key: "Cursor_2", path: "assets/UI Elements/Cursors/Cursor_02.png" },
   { key: "Cursor_3", path: "assets/UI Elements/Cursors/Cursor_03.png" },
   { key: "Cursor_4", path: "assets/UI Elements/Cursors/Cursor_04.png" },
+  { key: "minimize", path: "assets/UI Elements/Cursors/Minimize.png" },
+  { key: "maximize", path: "assets/UI Elements/Cursors/Maximize.png" },
+  { key: "swordIcon", path: "assets/UI Elements/Icons/Icon_05.png" },
+  { key: "shieldIcon", path: "assets/UI Elements/Icons/Icon_06.png" },
+  { key: "jumpIcon", path: "assets/UI Elements/Icons/Icon_13.png" },
 ];
 
 // =============================================

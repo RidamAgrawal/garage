@@ -14,6 +14,7 @@ import { EventBus } from "@/events/EventBus";
 import { EventKeys } from "@/constants/EventKeys";
 import type { Player } from "@/entities/player/Player";
 import { attachHealthBar } from "@/ui/HealthBar";
+import { ELEVATION_CONFIG } from "@/config/BalanceConfig";
 
 /**
  * Enemy Base Class — Polymorphism ka example
@@ -134,7 +135,12 @@ export class Enemy extends Entity {
   executeAttack() {
     this.combat.performAttack(this.scene.time.now);
     const range = this.getAttackRange();
-    if (this.target && this.target.active && this.isPlayerInRange(range)) {
+    if (
+      this.target &&
+      this.target.active &&
+      this.isPlayerInRange(range) &&
+      !((this.target.elevation?.z ?? 0) > ELEVATION_CONFIG.HIT_Z)
+    ) {
       const dx = this.target.x - this.x;
       const dy = this.target.y - this.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;

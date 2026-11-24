@@ -42,7 +42,7 @@ export class Player extends Entity {
   private lastAttackTime = 0;
   private lastAttackAnim: "attack" | "attack2" = "attack";
   public hasShield = false;
-  private isFallingInWater = false;
+  private isDrowning = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, AssetKeys.WARRIOR_IDLE);
@@ -105,7 +105,7 @@ export class Player extends Entity {
    */
   protected preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
-    if (!this.isFallingInWater) {
+    if (!this.isDrowning) {
       this.fsm.update(time, delta);
     }
   }
@@ -115,7 +115,7 @@ export class Player extends Entity {
    * Called by RunState.update()
    */
   handleMovement() {
-    if (this.isFallingInWater) return;
+    if (this.isDrowning) return;
     const dir = this.controller.getMovementDirection();
     this.movement.move(dir.x, dir.y);
   }
@@ -219,7 +219,7 @@ export class Player extends Entity {
   }
 
   attack() {
-    if (this.isFallingInWater) return;
+    if (this.isDrowning) return;
     const now = this.scene.time.now;
     let pick: "attack" | "attack2" = "attack";
 
@@ -239,7 +239,7 @@ export class Player extends Entity {
   }
 
   public defend(): void {
-    if (this.isFallingInWater || !this.hasShield) return;
+    if (this.isDrowning || !this.hasShield) return;
     this.fsm.transition("defend");
   }
 
@@ -280,13 +280,13 @@ export class Player extends Entity {
   }
 
   public jump(): void {
-    if (this.isFallingInWater) return;
+    if (this.isDrowning) return;
     if (this.elevation?.isGrounded) this.fsm.transition("jump");
   }
 
   private fellInWater(): void {
-    if (this.isFallingInWater) return;
-    this.isFallingInWater = true;
+    if (this.isDrowning) return;
+    this.isDrowning = true;
 
     this.movement.stop();
     if (this.body) {
@@ -318,7 +318,7 @@ export class Player extends Entity {
           this.alpha = 1;
           this.fsm.transition("idle");
         }
-        this.isFallingInWater = false;
+        this.isDrowning = false;
       },
     });
   }

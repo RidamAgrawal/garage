@@ -38,7 +38,11 @@ export class HurtState implements IFSMState {
       if (this.entity.health && this.entity.health.isDead()) {
         this.entity.fsm.transition("dead");
       } else {
-        this.entity.fsm.transition("idle");
+        const next =
+          this.entity.elevation && !this.entity.elevation.isGrounded
+            ? "jump"
+            : "idle";
+        this.entity.fsm.transition(next);
       }
     });
   }

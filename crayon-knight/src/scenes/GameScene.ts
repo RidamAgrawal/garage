@@ -8,7 +8,8 @@ import { Player } from "@/entities/player/Player";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { runState } from "@/state/RunState";
 import { AudioSystem } from "@/systems/AudioSystem";
-import { IslandBuildResult } from "@/types/game.types";
+import { IslandBuildResult, TerrainType } from "@/types/game.types";
+import { ELEVATION_CONFIG } from "@/config/BalanceConfig";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
@@ -82,7 +83,8 @@ export class GameScene extends Phaser.Scene {
     // Step 5: Player spawn karo
     // ============================================================
     this.player = new Player(this, playerSpawn.x, playerSpawn.y);
-    this.player.attachElevation(this.islandResult.terrainAt);
+    const terrainAt = this.islandResult?.terrainAt ?? (() => TerrainType.FLAT);
+    this.player.attachElevation(terrainAt);
     this.player.setDepth(20); // Characters map ke upar dikhein
 
     // ============================================================
@@ -113,9 +115,12 @@ export class GameScene extends Phaser.Scene {
       this.boundaries,
       undefined,
       (player, wall) => {
-        const isCliff =
-          (wall as Phaser.GameObjects.Zone).getData("cliff") === true;
-        return !(isCliff && (player as Player).elevation?.canClearCliff()); // true = collide
+        const type = (wall as Phaser.GameObjects.Zone).getData("boundaryType");
+        const elevation = (player as Player).elevation;
+        if (!elevation) return true;
+        if (type === "shore") return elevation.isGrounded;
+        if (type === "cliff") return !elevation.canClearCliff();
+        return true; // true = collide
       },
       this,
     );
@@ -187,6 +192,9 @@ export class GameScene extends Phaser.Scene {
     const enemy = enemyObj as any;
 
     if (!player.active || !enemy.active) return;
+
+    // Skip contact damage if player is jumping high enough
+    if ((player.elevation?.z ?? 0) > ELEVATION_CONFIG.HIT_Z) return;
 
     // Weapon-wielding enemies (like skeleton) attack via animation, not passive body contact
     if (enemy.getAttackRange && enemy.getAttackRange() > 0) return;

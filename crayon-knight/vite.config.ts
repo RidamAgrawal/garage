@@ -18,7 +18,7 @@ export default defineConfig({
   },
   build: {
     target: "es2022",
-    outDir: "dist",
+    outDir: "dist/crayon-knight",
     assetsInlineLimit: 0,
     rollupOptions: {
       output: {
