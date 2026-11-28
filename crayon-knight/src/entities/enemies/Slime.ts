@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Enemy } from "./Enemy";
 import { AssetKeys } from "@/constants/AssetKeys";
 import { ENEMY_CONFIGS } from "@/config/BalanceConfig";
+import { EnemyType } from "@/types/game.types";
 
 /**
  * Slime Enemy — Contact damage with bouncy movement (uses Spider sprite)
@@ -12,8 +13,14 @@ import { ENEMY_CONFIGS } from "@/config/BalanceConfig";
 export class Slime extends Enemy {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Spider sprite use karta hai
-    super(scene, x, y, AssetKeys.SPIDER_IDLE, ENEMY_CONFIGS.slime);
-    this.enemyType = "slime";
+    super(
+      scene,
+      x,
+      y,
+      AssetKeys.SPIDER_IDLE,
+      ENEMY_CONFIGS[EnemyType.SLIME],
+      EnemyType.SLIME,
+    );
   }
 
   /** Override patrol for bouncy movement pattern */

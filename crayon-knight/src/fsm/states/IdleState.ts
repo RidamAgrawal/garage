@@ -53,7 +53,7 @@ export class IdleState implements IFSMState {
       ) {
         const attackRange = this.entity.getAttackRange?.() ?? 0;
         if (attackRange > 0 && this.entity.isPlayerInRange(attackRange)) {
-          if (this.entity.target?.isAttacking?.()) {
+          if (this.entity.canDefend && this.entity.target?.isAttacking?.()) {
             this.entity.fsm.transition("defend");
             return;
           }

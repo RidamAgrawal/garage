@@ -3,9 +3,8 @@ import { Player } from "@/entities/player/Player";
 import { Enemy } from "@/entities/enemies/Enemy";
 import { Skeleton } from "@/entities/enemies/Skeleton";
 import { Slime } from "@/entities/enemies/Slime";
-import { AssetKeys } from "@/constants/AssetKeys";
 import { ENEMY_CONFIGS } from "@/config/BalanceConfig";
-import { BombFish } from "@/entities/enemies/BombFish";
+import { EnemyType } from "@/types/game.types";
 
 /**
  * SpawnManager — Factory Pattern ka example
@@ -38,56 +37,41 @@ export class SpawnManager {
    * Ek enemy spawn karo given world coordinates pe.
    * Tiled Objects layer ke coordinates directly pass karo.
    *
-   * Factory switch: type string → sahi Enemy subclass
+   * Configured types use the base Enemy; only custom behavior keeps a subclass.
    */
   public spawnEnemyAt(
     x: number,
     y: number,
     type: string = "skeleton",
   ): Enemy | null {
-    let enemy: Enemy | null = null;
-
-    switch (type.toLowerCase()) {
-      case "skeleton":
-        // Skull sprite se Skeleton represent hota hai
-        enemy = new Skeleton(this.scene, x, y);
-        break;
-
-      case "slime":
-        // Spider sprite se Slime represent hota hai
-        enemy = new Slime(this.scene, x, y);
-        break;
-
-      case "bombfish":
-        // Spider sprite se Slime represent hota hai
-        enemy = new BombFish(this.scene, x, y);
-        break;
-
-      case "goblin":
-      case "boss":
-        // Troll sprite — bada aur powerful enemy
-        enemy = new Enemy(
-          this.scene,
-          x,
-          y,
-          AssetKeys.TROLL_IDLE,
-          ENEMY_CONFIGS.goblin,
-        );
-        enemy.enemyType = type === "boss" ? "boss" : "goblin";
-        break;
-
-      default:
-        console.warn(
-          `[SpawnManager] Unknown enemy type: "${type}" — skeleton use kar raha hoon`,
-        );
-        enemy = new Skeleton(this.scene, x, y);
+    const rawType = type.toLowerCase();
+    const enemyType =
+      rawType === "boss"
+        ? EnemyType.GOBLIN
+        : Object.values(EnemyType).includes(rawType as EnemyType)
+          ? (rawType as EnemyType)
+          : null;
+    if (!enemyType) {
+      console.warn(`[SpawnManager] Unknown enemy type: "${type}"`);
+      return null;
     }
 
-    if (enemy) {
-      enemy.setTarget(this.player);
-      enemy.setDepth(20);
-      this.enemyGroup.add(enemy);
-    }
+    const config = ENEMY_CONFIGS[enemyType];
+    const enemy =
+      enemyType === EnemyType.SKELETON
+        ? new Skeleton(this.scene, x, y)
+        : enemyType === EnemyType.SLIME
+          ? new Slime(this.scene, x, y)
+          : new Enemy(
+              this.scene,
+              x,
+              y,
+              `${config.animPrefix ?? enemyType}-idle`,
+              config,
+              enemyType,
+            );
+    enemy.setTarget(this.player);
+    this.enemyGroup.add(enemy);
 
     return enemy;
   }
@@ -103,6 +87,9 @@ export class SpawnManager {
       { x: mapWidth * 0.25, y: mapHeight * 0.75, type: "skeleton" },
       { x: mapWidth * 0.75, y: mapHeight * 0.75, type: "goblin" },
       { x: mapWidth * 0.5, y: mapHeight * 0.4, type: "bombfish" },
+      { x: mapWidth * 0.35, y: mapHeight * 0.55, type: "gnome" },
+      { x: mapWidth * 0.65, y: mapHeight * 0.55, type: "lancer" },
+      { x: mapWidth * 0.5, y: mapHeight * 0.75, type: "harpoonfish" },
     ];
 
     for (const pos of positions) {

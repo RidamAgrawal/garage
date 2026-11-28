@@ -55,8 +55,8 @@ export class Player extends Entity {
     // taaki collision natural feel kare
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
-      body.setSize(24, 16);
-      body.setOffset(84, 112);
+      body.setSize(64, 80);
+      // body.setOffset(84, 112);
       this.setScale(0.5);
       body.setCollideWorldBounds(true);
     }

@@ -14,7 +14,14 @@ import { EventBus } from "@/events/EventBus";
 import { EventKeys } from "@/constants/EventKeys";
 import type { Player } from "@/entities/player/Player";
 import { attachHealthBar } from "@/ui/HealthBar";
-import { ELEVATION_CONFIG } from "@/config/BalanceConfig";
+import { ELEVATION_CONFIG, type EnemyConfig } from "@/config/BalanceConfig";
+import { EnemyType } from "@/types/game.types";
+import type {
+  AnyProjectileConfig,
+  AttackMode,
+  EnemyDiedPayload,
+  ProjectileFireRequest,
+} from "@/types/combat.types";
 
 /**
  * Enemy Base Class — Polymorphism ka example
@@ -31,41 +38,38 @@ export class Enemy extends Entity {
   public health: HealthComponent;
   public movement: MovementComponent;
   public combat: CombatComponent;
-  public enemyType: string = "enemy";
+  public readonly enemyType: EnemyType;
+  public readonly attackMode: AttackMode;
+  public readonly canDefend: boolean;
 
   protected target: Player | null = null;
   protected patrolTimer: number = 0;
   protected patrolDir: { x: number; y: number } = { x: 0, y: 0 };
   protected detectionRange: number;
-  protected goldDrop: { min: number; max: number };
+  private projectileConfig?: AnyProjectileConfig;
+  private scoreReward: number;
 
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     texture: string,
-    config: {
-      maxHp: number;
-      speed: number;
-      attackPower: number;
-      attackCooldownMs: number;
-      attackRange: number;
-      knockbackForce: number;
-      detectionRange: number;
-      goldDrop: { min: number; max: number };
-      animPrefix?: string; // Animation prefix — FSM states ke liye
-      scale?: number; // Sprite scale for game world fit
-      barTop?: number; // Fraction of frame height that is empty above the head; differs per sprite
-    },
+    config: EnemyConfig,
+    enemyType: EnemyType,
   ) {
     super(scene, x, y, texture);
 
     // Animation prefix set karo — agar config mein nahi hai toh texture key hi use hoga
     this.animPrefix = config.animPrefix ?? texture;
 
-    this.setDepth(4);
     this.detectionRange = config.detectionRange;
-    this.goldDrop = config.goldDrop;
+    this.enemyType = enemyType;
+    this.attackMode = config.attackMode;
+    this.canDefend =
+      config.canDefend === true &&
+      scene.anims.exists(`${this.animPrefix}-defend`);
+    this.projectileConfig = config.projectile;
+    this.scoreReward = config.scoreReward;
 
     // Scale set karo (sprites 192px+ hain, game world 32px tile based)
     if (config.scale) {
@@ -74,8 +78,16 @@ export class Enemy extends Entity {
 
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
-      body.setSize(40, 40);
-      body.setOffset(76, 120);
+      if('size' in config) {
+        body.setSize(config.size.width, config.size.height);
+      } else {
+        body.setSize(40, 40);
+      }
+      if('offset' in config) {
+        body.setOffset(config.offset.x, config.offset.y);
+      } else {
+        body.setOffset(76, 120);
+      }
       body.setCollideWorldBounds(true);
     }
 
@@ -134,6 +146,12 @@ export class Enemy extends Entity {
 
   executeAttack() {
     this.combat.performAttack(this.scene.time.now);
+    if (this.attackMode === "contact") return;
+    if (this.attackMode === "ranged") {
+      this.fireProjectile();
+      return;
+    }
+
     const range = this.getAttackRange();
     if (
       this.target &&
@@ -148,6 +166,33 @@ export class Enemy extends Entity {
         x: dx / dist,
         y: dy / dist,
       });
+    }
+  }
+
+  private fireProjectile(): void {
+    const config = this.projectileConfig;
+    const fire = () => {
+      const target = this.target;
+      if (!config || !this.active || !target?.active || !this.body || !target.body)
+        return;
+
+      const from = this.body as Phaser.Physics.Arcade.Body;
+      const to = target.body as Phaser.Physics.Arcade.Body;
+      const request: ProjectileFireRequest = {
+        x: from.center.x,
+        y: from.center.y,
+        targetX: to.center.x,
+        targetY: to.center.y,
+        damage: this.combat.getAttackPower(),
+        config,
+      };
+      EventBus.emit(EventKeys.PROJECTILE_FIRE, request);
+    };
+
+    if (config?.fireDelayMs) {
+      this.scene.time.delayedCall(config.fireDelayMs, fire);
+    } else {
+      fire();
     }
   }
 
@@ -208,15 +253,14 @@ export class Enemy extends Entity {
       (this.body as Phaser.Physics.Arcade.Body).checkCollision.none = true;
     }
 
-    // Gold drop emit karo — GameScene handle karega
-    const goldAmount = Phaser.Math.Between(
-      this.goldDrop.min,
-      this.goldDrop.max,
-    );
-    EventBus.emit(EventKeys.ENEMY_DIED, {
-      gold: goldAmount,
-      enemyType: this.enemyType,
-    });
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    const payload: EnemyDiedPayload = {
+      x: body.center.x,
+      y: body.bottom,
+      type: this.enemyType,
+      scoreReward: this.scoreReward,
+    };
+    EventBus.emit(EventKeys.ENEMY_DIED, payload);
 
     // Fade out and destroy
     this.scene.tweens.add({

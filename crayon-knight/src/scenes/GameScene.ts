@@ -10,6 +10,13 @@ import { runState } from "@/state/RunState";
 import { AudioSystem } from "@/systems/AudioSystem";
 import { IslandBuildResult, TerrainType } from "@/types/game.types";
 import { ELEVATION_CONFIG } from "@/config/BalanceConfig";
+import { ProjectileSystem, type Projectile } from "@/systems/ProjectileSystem";
+import { LootSystem } from "@/systems/LootSystem";
+import { Enemy } from "@/entities/enemies/Enemy";
+import type {
+  EnemyDiedPayload,
+  ProjectileExplodedPayload,
+} from "@/types/combat.types";
 
 /**
  * GameScene — THE HEART OF THE GAME 💖
@@ -26,6 +33,8 @@ export class GameScene extends Phaser.Scene {
   private mapType: "procedural" | "tiled" = "procedural";
   private audioSystem = new AudioSystem();
   private islandResult!: IslandBuildResult;
+  private projectileSystem!: ProjectileSystem;
+  private lootSystem!: LootSystem;
 
   constructor() {
     super({ key: SceneKeys.GAME });
@@ -86,6 +95,25 @@ export class GameScene extends Phaser.Scene {
     const terrainAt = this.islandResult?.terrainAt ?? (() => TerrainType.FLAT);
     this.player.attachElevation(terrainAt);
     this.player.setDepth(20); // Characters map ke upar dikhein
+
+    this.projectileSystem = new ProjectileSystem();
+    this.projectileSystem.init(this);
+    this.projectileSystem.attachBoundaries(this.boundaries);
+    this.physics.add.overlap(
+      this.player,
+      this.projectileSystem.group,
+      this.handlePlayerProjectile as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback,
+      undefined,
+      this,
+    );
+    EventBus.on(
+      EventKeys.PROJECTILE_EXPLODED,
+      this.handleProjectileExploded,
+      this,
+    );
+
+    this.lootSystem = new LootSystem();
+    this.lootSystem.init(this, this.player);
 
     // ============================================================
     // Step 6: Enemies spawn karo
@@ -189,15 +217,14 @@ export class GameScene extends Phaser.Scene {
     enemyObj: Phaser.GameObjects.GameObject,
   ) {
     const player = playerObj as Player;
-    const enemy = enemyObj as any;
+    const enemy = enemyObj as Enemy;
 
     if (!player.active || !enemy.active) return;
 
     // Skip contact damage if player is jumping high enough
     if ((player.elevation?.z ?? 0) > ELEVATION_CONFIG.HIT_Z) return;
 
-    // Weapon-wielding enemies (like skeleton) attack via animation, not passive body contact
-    if (enemy.getAttackRange && enemy.getAttackRange() > 0) return;
+    if (enemy.attackMode !== "contact") return;
 
     const bodyP = player.body as Phaser.Physics.Arcade.Body;
     const bodyE = enemy.body as Phaser.Physics.Arcade.Body;
@@ -211,9 +238,45 @@ export class GameScene extends Phaser.Scene {
     player.onDamaged(1, { x: dirX / length, y: dirY / length });
   }
 
-  /** Dushman mara → gold collect karo */
-  private handleEnemyDied(data: { gold: number }) {
-    runState.addGold(data.gold ?? 0);
+  /** Enemy kills award score; LootSystem handles gold drops. */
+  private handleEnemyDied(data: EnemyDiedPayload) {
+    runState.addScore(data.scoreReward);
+  }
+
+  private handlePlayerProjectile(
+    _playerObj: Phaser.GameObjects.GameObject,
+    projectileObj: Phaser.GameObjects.GameObject,
+  ) {
+    const projectile = projectileObj as Projectile;
+    if (!this.player.active || !projectile.active) return;
+    if ((this.player.elevation?.z ?? 0) > ELEVATION_CONFIG.HIT_Z) return;
+
+    // if (projectile.behavior === "explosive") {
+    //   this.projectileSystem.detonate(projectile);
+    //   return;
+    // }
+
+    const body = projectile.body as Phaser.Physics.Arcade.Body;
+    const speed = Math.hypot(body.velocity.x, body.velocity.y) || 1;
+    this.player.onDamaged(projectile.damage, {
+      x: body.velocity.x / speed,
+      y: body.velocity.y / speed,
+    });
+    this.projectileSystem.release(projectile);
+  }
+
+  private handleProjectileExploded(data: ProjectileExplodedPayload) {
+    if (!this.player.active) return;
+    if ((this.player.elevation?.z ?? 0) > ELEVATION_CONFIG.HIT_Z) return;
+
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const dx = body.center.x - data.x;
+    const dy = body.center.y - data.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance > data.radius) return;
+
+    const length = distance || 1;
+    this.player.onDamaged(data.damage, { x: dx / length, y: dy / length });
   }
 
   private handleGameOver() {
@@ -225,6 +288,13 @@ export class GameScene extends Phaser.Scene {
   shutdown() {
     EventBus.off(EventKeys.PLAYER_DIED, this.handleGameOver, this);
     EventBus.off(EventKeys.ENEMY_DIED, this.handleEnemyDied, this);
+    EventBus.off(
+      EventKeys.PROJECTILE_EXPLODED,
+      this.handleProjectileExploded,
+      this,
+    );
+    this.projectileSystem?.destroy();
+    this.lootSystem?.destroy();
     this.audioSystem.destroy();
   }
 

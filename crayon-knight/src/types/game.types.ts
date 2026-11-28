@@ -19,6 +19,16 @@ export enum TerrainType {
   ELEVATED = 2,
 }
 
+export enum EnemyType {
+  SKELETON = "skeleton",
+  SLIME = "slime",
+  BOMBFISH = "bombfish",
+  GOBLIN = "goblin",
+  GNOME = "gnome",
+  LANCER = "lancer",
+  HARPOON_FISH = "harpoonfish",
+}
+
 /**
  * Entity Configuration
  * Interface defining the base properties of any game entity (Player, Enemy, etc.)
@@ -60,7 +70,7 @@ export interface IslandBuildResult {
   boundaries: Phaser.Physics.Arcade.StaticGroup;
   spawnPoints: {
     player: { x: number; y: number } | null;
-    enemies: { x: number; y: number; type: string }[];
+    enemies: { x: number; y: number; type: EnemyType }[];
   };
   terrainAt: (worldX: number, worldY: number) => TerrainType;
 }

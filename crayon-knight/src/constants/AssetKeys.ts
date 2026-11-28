@@ -44,6 +44,15 @@ export enum AssetKeys {
   BOMBFISH_RUN = "bombfish-run", // File hai Troll_Walk par FSM "run" expect karta hai
   BOMBFISH_ATTACK = "bombfish-attack",
 
+  // === New Enemy Roster ===
+  LANCER_IDLE = "lancer-idle",
+  LANCER_RUN = "lancer-run",
+  LANCER_ATTACK = "lancer-attack",
+  HARPOON_FISH_IDLE = "harpoonfish-idle",
+  HARPOON_FISH_RUN = "harpoonfish-run",
+  HARPOON_FISH_ATTACK = "harpoonfish-attack",
+  HARPOON_PROJECTILE = "harpoon-projectile",
+
   // Tilesets
   DUNGEON_TILES = "DUNGEON_TILES",
 
@@ -61,7 +70,12 @@ export enum AssetKeys {
   HIT_EFFECT = "HIT_EFFECT",
   BOMB_SPIN = "bomb-spin",
   BOMB_FUSE = "bomb-fuse",
+  EXPLOSION = "explosion1",
   SPLASH_EFFECT = "splash-effect",
+
+  // Generated pickup textures
+  GOLD_COIN = "gold-coin",
+  HEART_PICKUP = "heart-pickup",
 
   // Audio
   BGM_DUNGEON = "BGM_DUNGEON",
@@ -311,6 +325,72 @@ export const AnimationAssets: Record<
     frameRate: 10,
     repeat: 0,
   },
+  // TODO(antigravity): verify filename & frameWidth/frameHeight on disk.
+  [AssetKeys.LANCER_IDLE]: {
+    path: "assets/characters/Enemies/Lancer/Lancer_Idle.png",
+    frameWidth: 256,
+    frameHeight: 256,
+    frameRate: 8,
+    start: 0,
+    end: 6,
+    repeat: -1,
+  },
+  [AssetKeys.LANCER_RUN]: {
+    path: "assets/characters/Enemies/Lancer/Lancer_Run.png",
+    frameWidth: 256,
+    frameHeight: 256,
+    frameRate: 10,
+    start: 0,
+    end: 5,
+    repeat: -1,
+  },
+  [AssetKeys.LANCER_ATTACK]: {
+    path: "assets/characters/Enemies/Lancer/Lancer_Attack.png",
+    frameWidth: 256,
+    frameHeight: 256,
+    frameRate: 10,
+    start: 0,
+    end: 7,
+    repeat: 0,
+  },
+  // TODO(antigravity): verify filename & frameWidth/frameHeight on disk.
+  [AssetKeys.HARPOON_FISH_IDLE]: {
+    path: "assets/characters/Enemies/Harpoon Fish/HarpoonFish_Idle.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 8,
+    start: 0,
+    end: 7,
+    repeat: -1,
+  },
+  [AssetKeys.HARPOON_FISH_RUN]: {
+    path: "assets/characters/Enemies/Harpoon Fish/HarpoonFish_Run.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 10,
+    start: 0,
+    end: 5,
+    repeat: -1,
+  },
+  [AssetKeys.HARPOON_FISH_ATTACK]: {
+    path: "assets/characters/Enemies/Harpoon Fish/HarpoonFish_Throw.png",
+    frameWidth: 192,
+    frameHeight: 192,
+    frameRate: 10,
+    start: 0,
+    end: 7,
+    repeat: 0,
+  },
+  // TODO(antigravity): verify filename & frameWidth/frameHeight on disk.
+  [AssetKeys.HARPOON_PROJECTILE]: {
+    path: "assets/characters/Enemies/Harpoon Fish/Harpoon.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    frameRate: 12,
+    start: 0,
+    end: 0,
+    repeat: -1,
+  },
   [AssetKeys.BOMB_SPIN]: {
     path: "assets/characters/Enemies/Bomb/Bomb_Spinning.png",
     frameWidth: 128,
@@ -329,7 +409,7 @@ export const AnimationAssets: Record<
     frameRate: 12,
     repeat: -1,
   },
-  explosion1: {
+  [AssetKeys.EXPLOSION]: {
     path: "assets/Particle FX/Explosion_01.png",
     frameWidth: 192,
     frameHeight: 192,

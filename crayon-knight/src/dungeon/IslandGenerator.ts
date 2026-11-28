@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import {
   AnimatedTile,
+  EnemyType,
   IslandBuildResult,
   TerrainType,
 } from "@/types/game.types";
@@ -649,7 +650,7 @@ export class IslandGenerator {
   /** Safe spawn points for player and enemies */
   private findSpawnPoints(grid: TerrainType[][]): {
     player: { x: number; y: number } | null;
-    enemies: { x: number; y: number; type: string }[];
+    enemies: { x: number; y: number; type: EnemyType }[];
   } {
     const W = this.width;
     const H = this.height;
@@ -675,31 +676,42 @@ export class IslandGenerator {
         : { x: (W * ts) / 2, y: (H * ts) / 2 };
 
     // Enemy spawns: distributed on flat & elevated ground
-    const enemies: { x: number; y: number; type: string }[] = [];
+    const enemies: { x: number; y: number; type: EnemyType }[] = [];
 
     if (flatTiles.length > 10) {
       enemies.push({
         x: flatTiles[Math.floor(flatTiles.length * 0.7)].x,
         y: flatTiles[Math.floor(flatTiles.length * 0.7)].y,
-        type: "skeleton",
+        type: EnemyType.SKELETON,
       });
       enemies.push({
         x: flatTiles[Math.floor(flatTiles.length * 0.8)].x,
         y: flatTiles[Math.floor(flatTiles.length * 0.8)].y,
-        type: "slime",
+        type: EnemyType.SLIME,
       });
       enemies.push({
         x: flatTiles[Math.floor(flatTiles.length * 0.9)].x,
         y: flatTiles[Math.floor(flatTiles.length * 0.9)].y,
-        type: "bombfish",
+        type: EnemyType.BOMBFISH,
       });
+    }
+
+    if (flatTiles.length > 20) {
+      for (const [fraction, type] of [
+        [0.45, EnemyType.GNOME],
+        [0.6, EnemyType.LANCER],
+        [0.95, EnemyType.HARPOON_FISH],
+      ] as const) {
+        const spawn = flatTiles[Math.floor(flatTiles.length * fraction)];
+        enemies.push({ ...spawn, type });
+      }
     }
 
     if (elevTiles.length > 0) {
       enemies.push({
         x: elevTiles[Math.floor(elevTiles.length * 0.5)].x,
         y: elevTiles[Math.floor(elevTiles.length * 0.5)].y,
-        type: "goblin", // Boss/Troll on top of the hill!
+        type: EnemyType.GOBLIN, // Boss/Troll on top of the hill!
       });
     }
 
